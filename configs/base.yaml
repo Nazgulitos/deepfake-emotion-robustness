@@ -1,0 +1,62 @@
+project:
+  name: deepfake_emotion_robustness
+  seed: 42
+
+paths:
+  project_root: .
+  metadata_dir: metadata
+  outputs_dir: outputs
+  logs_dir: outputs/logs
+
+files:
+  subset_manifest: metadata/subset_manifest.csv
+  frame_manifest: metadata/frame_manifest.csv
+  face_manifest: metadata/face_manifest.csv
+  emotion_frame_predictions: metadata/emotion_frame_predictions.csv
+  video_emotion_features: metadata/video_emotion_features.csv
+  detector_scores: metadata/detector_scores.csv
+  final_merged_table: metadata/final_merged_table.csv
+  evaluation_summary: outputs/tables/evaluation_summary.csv
+  late_fusion_scores: outputs/tables/late_fusion_scores.csv
+
+datasets:
+  sources:
+    - name: celeb_df
+      root: /path/to/Celeb-DF
+      pattern: "**/*.mp4"
+      label: unknown
+
+subset:
+  max_videos_per_source: 200
+
+preprocessing:
+  frame_fps: 2.0
+  frame_output_dir: outputs/frames
+  face_output_dir: outputs/faces
+  face_detector: mediapipe
+
+emotion:
+  model_name: placeholder_fer_model
+  neutral_label: neutral
+
+detection:
+  model_name: placeholder_detector
+  threshold: 0.5
+
+evaluation:
+  label_column: is_fake
+  score_column: detector_score
+  emotion_column: dominant_emotion
+  arousal_column: mean_arousal
+
+fusion:
+  feature_columns:
+    - detector_score
+    - mean_valence
+    - mean_arousal
+    - max_arousal
+    - emotion_entropy
+    - emotion_transition_rate
+    - arousal_variation
+    - neutral_ratio
+  target_column: is_fake

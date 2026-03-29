@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python tooling
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor / OS
+.DS_Store
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Local configs
+configs/*.local.yaml
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
+# Data and large artifacts
+data/
+datasets/
+raw/
+processed/
+checkpoints/
+weights/
+models/
+artifacts/
+
+# Keep directory structure but ignore generated metadata/results by default
+metadata/*.csv
+metadata/*.parquet
+outputs/figures/*
+outputs/tables/*
+outputs/logs/*
+
+# Keep placeholders
+!metadata/.gitkeep
+!outputs/figures/.gitkeep
+!outputs/tables/.gitkeep
+!outputs/logs/.gitkeep
