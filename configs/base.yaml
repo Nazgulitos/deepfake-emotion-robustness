@@ -36,8 +36,8 @@ preprocessing:
   face_detector: mediapipe
 
 emotion:
-  model_name: placeholder_fer_model
-  neutral_label: neutral
+  model_name: laion/Empathic-Insight-Face-Large
+  neutral_label: emotional_numbness  # closest to "neutral" in 40-category taxonomy
 
 detection:
   model_name: placeholder_detector
