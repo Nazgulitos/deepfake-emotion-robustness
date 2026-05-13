@@ -37,7 +37,6 @@ dist/
 
 # Data and large artifacts
 data/
-datasets/
 raw/
 processed/
 checkpoints/

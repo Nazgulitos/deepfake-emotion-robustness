@@ -1,0 +1,5 @@
+video_id,frames_count,first_video_path,label,split,manipulation_family,manipulation_type,source_subset
+Celeb-synthesis__FaceReenact__DaGAN__id45_id43_0006__31d12076,53,/home/n.salikhova@innopolis.university/deepfake-emotion-robustness/exports/pilot/videos/fake/FaceReenact/id45_id43_0006.mp4,fake,val,FaceReenact,DaGAN,Celeb-synthesis
+Celeb-synthesis__FaceReenact__TPSMM__id6_id0_0006__549c053c,89,/home/n.salikhova@innopolis.university/deepfake-emotion-robustness/exports/pilot/videos/fake/FaceReenact/id6_id0_0006.mp4,fake,train,FaceReenact,TPSMM,Celeb-synthesis
+Celeb-synthesis__TalkingFace__EDTalk__id55_0005_test_id00812_7qTpm6bwQW0__65014d4b,75,/home/n.salikhova@innopolis.university/deepfake-emotion-robustness/exports/pilot/videos/fake/TalkingFace/id55_0005_test_id00812_7qTpm6bwQW0.mp4,fake,train,TalkingFace,EDTalk,Celeb-synthesis
+Celeb-synthesis__TalkingFace__IP_LAP__id44_0004_test_id01822_jmFGgwXCuW0__ee97d12d,48,/home/n.salikhova@innopolis.university/deepfake-emotion-robustness/exports/pilot/videos/fake/TalkingFace/id44_0004_test_id01822_jmFGgwXCuW0.mp4,fake,train,TalkingFace,IP_LAP,Celeb-synthesis
