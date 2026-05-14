@@ -1,0 +1,113 @@
+subsets:
+  final:
+    manifest: datasets/metadata/final_face_manifest.csv
+    emotion_features: datasets/emotion_annotated/metadata/final_video_emotion_features.csv
+    n_videos: 800
+  pilot:
+    manifest: datasets/metadata/pilot_face_manifest.csv
+    emotion_features: datasets/emotion_annotated/metadata/pilot_video_emotion_features.csv
+    n_videos: 200
+
+detectors:
+  xception:
+    scores: datasets/detector_processed/final_detector_scores.csv
+    status: done
+  huggingface:
+    scores: datasets/detector_processed/final_huggingface_scores.csv
+    status: needs_recompute    # was computed but not stored in standard format
+  transformer:
+    scores: datasets/detector_processed/final_transformer_scores.csv
+    status: todo
+
+experiments:
+  exp01:
+    status: done
+    detector: huggingface
+    fusion: logistic_regression
+    output_table: datasets/metadata/final_huggingface_fusion_results.csv
+    rq: [3]
+    hypothesis: [3]
+
+  exp02:
+    status: done
+    detector: xception
+    fusion: logistic_regression
+    output_table: datasets/metadata/final_xception_ablation_results.csv
+    rq: [1, 3]
+    hypothesis: [3]
+
+  exp03:
+    status: done
+    detector: xception
+    fusion: xgboost
+    output_table: datasets/metadata/final_xception_xgboost_ablation_results.csv
+    rq: [3]
+    hypothesis: [3]
+
+  exp04b:
+    status: existing_data_new_analysis
+    detector: xception
+    type: subgroup_analysis
+    stratify_by: arousal_tercile
+    existing_input: datasets/metadata/final_xception_auc_by_arousal.csv
+    output_table: outputs/results/{date}/exp04b/final_exp04b_arousal_subgroup.csv
+    rq: [1]
+    hypothesis: [1]
+
+  exp05:
+    status: existing_data_new_analysis
+    detector: xception
+    type: subgroup_analysis
+    stratify_by: dominant_emotion
+    existing_input: datasets/metadata/final_xception_auc_by_emotion.csv
+    output_table: outputs/results/{date}/exp05/final_exp05_per_emotion_auc.csv
+    rq: [1, 2]
+    hypothesis: [1]
+
+  exp06:
+    status: todo
+    detector: xception
+    type: cross_tabulation
+    stratify_by: [forgery_family, dominant_emotion]
+    output_table: outputs/results/{date}/exp06/final_exp06_forgery_emotion.csv
+    output_figure: outputs/results/{date}/exp06/final_exp06_heatmap.png
+    rq: [2]
+    hypothesis: [1]
+
+  exp07:
+    status: todo
+    type: statistical
+    tests:
+      - h1_delong_arousal_terciles
+      - h1_delong_emotion_classes
+      - h2_spearman_error_vs_descriptors
+      - h3_delong_fusion_vs_baseline
+    rq: [1, 3]
+    hypothesis: [1, 2, 3]
+
+  exp08:
+    status: todo
+    detector: transformer
+    fusion: logistic_regression
+    rq: [3]
+    hypothesis: [3]
+
+  exp09:
+    status: todo
+    type: interpretability
+    upstream: exp03
+    rq: [1, 3]
+
+  exp10:
+    status: todo
+    type: visualization
+    rq: [1]
+    hypothesis: [3]
+
+  exp11:
+    status: todo
+    type: generalization
+    upstream: exp02
+    test_subset: pilot
+    rq: [3]
+    hypothesis: [3]
