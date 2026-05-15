@@ -1,0 +1,85 @@
+{
+  "evaluation_method": "groupkfold_5_fold_on_identity",
+  "auc_baseline_only": 0.7031039136302295,
+  "auc_fusion_oof": 0.8302968960863698,
+  "delta_auc": 0.1271929824561403,
+  "delong": {
+    "auc_a": 0.8302968960863698,
+    "auc_b": 0.7031039136302294,
+    "z_stat": 8.035957464801898,
+    "p_value": 9.285095368961809e-16
+  },
+  "permutation": {
+    "auc_a": 0.8302968960863698,
+    "auc_b": 0.7031039136302295,
+    "observed_diff": 0.1271929824561403,
+    "p_value": 0.034482758620689655,
+    "n_permutations": 2000
+  },
+  "n_total": 115,
+  "n_identities": 12,
+  "feature_cols_used": [
+    "detector_score",
+    "mean_arousal",
+    "mean_valence",
+    "max_arousal",
+    "arousal_variation",
+    "emotion_entropy",
+    "transition_rate",
+    "neutral_ratio"
+  ],
+  "fold_details": [
+    {
+      "fold": 1,
+      "val_identities": [
+        "id23",
+        "id8"
+      ],
+      "n_train": 94,
+      "n_val": 21,
+      "fold_fusion_auc": 0.7444444444444445
+    },
+    {
+      "fold": 2,
+      "val_identities": [
+        "id1",
+        "id22"
+      ],
+      "n_train": 93,
+      "n_val": 22,
+      "fold_fusion_auc": 0.8229166666666666
+    },
+    {
+      "fold": 3,
+      "val_identities": [
+        "id44",
+        "id50",
+        "id52"
+      ],
+      "n_train": 90,
+      "n_val": 25,
+      "fold_fusion_auc": 0.7619047619047619
+    },
+    {
+      "fold": 4,
+      "val_identities": [
+        "id24",
+        "id54"
+      ],
+      "n_train": 93,
+      "n_val": 22,
+      "fold_fusion_auc": 0.9375
+    },
+    {
+      "fold": 5,
+      "val_identities": [
+        "id10",
+        "id19",
+        "id41"
+      ],
+      "n_train": 90,
+      "n_val": 25,
+      "fold_fusion_auc": 0.8831168831168832
+    }
+  ]
+}

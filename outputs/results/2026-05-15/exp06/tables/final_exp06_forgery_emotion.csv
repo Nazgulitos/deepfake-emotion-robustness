@@ -1,0 +1,13 @@
+forgery_family,dominant_emotion,AUC
+FaceReenact,astonishment_surprise,0.7989417989417988
+FaceReenact,contentment,0.7746913580246914
+FaceReenact,anger,0.75
+FaceReenact,elation,0.5277777777777778
+FaceSwap,astonishment_surprise,0.5802469135802469
+FaceSwap,contentment,0.4156378600823045
+FaceSwap,anger,0.375
+FaceSwap,elation,0.16666666666666669
+TalkingFace,anger,1.0
+TalkingFace,contentment,0.8814814814814815
+TalkingFace,elation,0.7777777777777778
+TalkingFace,astonishment_surprise,0.6018518518518519

@@ -63,7 +63,6 @@ DeepfakeBench/
 # Large outputs (keep structure via .gitkeep)
 outputs/frames/
 outputs/crops/
-outputs/results/
 outputs/thesis_artifacts/
 
 # Face crops and extracted frames

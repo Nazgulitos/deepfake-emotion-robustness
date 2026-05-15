@@ -1,0 +1,56 @@
+{
+  "arousal_tercile_auc": [
+    {
+      "arousal_tercile": "high",
+      "n": 52,
+      "n_real": 27,
+      "n_fake": 25,
+      "AUC": 0.7407407407407408
+    },
+    {
+      "arousal_tercile": "low",
+      "n": 52,
+      "n_real": 20,
+      "n_fake": 32,
+      "AUC": 0.5984375000000001
+    },
+    {
+      "arousal_tercile": "medium",
+      "n": 51,
+      "n_real": 32,
+      "n_fake": 19,
+      "AUC": 0.75
+    }
+  ],
+  "arousal_tercile_ci": [
+    {
+      "tercile": "high",
+      "auc": 0.7407407407407408,
+      "ci_lower": 0.6115973715651135,
+      "ci_upper": 0.8755590538064302,
+      "n_bootstrap": 500
+    },
+    {
+      "tercile": "low",
+      "auc": 0.5984375000000001,
+      "ci_lower": 0.4468027019420208,
+      "ci_upper": 0.745700238116236,
+      "n_bootstrap": 500
+    },
+    {
+      "tercile": "medium",
+      "auc": 0.75,
+      "ci_lower": 0.6079099348926936,
+      "ci_upper": 0.8816280566280567,
+      "n_bootstrap": 500
+    }
+  ],
+  "h1_arousal_note": "Groups are disjoint by definition; DeLong requires same-sample scores. AUC difference significance assessed via bootstrap CIs above.",
+  "emotion_class_auc_spread": {
+    "n_classes": 4,
+    "min_auc": 0.625,
+    "max_auc": 0.7114197530864198,
+    "range": 0.0864197530864198,
+    "std": 0.03937261587669901
+  }
+}
