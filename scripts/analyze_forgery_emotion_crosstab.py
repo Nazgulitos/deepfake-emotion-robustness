@@ -34,7 +34,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--subset", default="final", choices=["final", "pilot"])
     p.add_argument("--merged_table", type=Path,
                    default=Path("datasets/metadata/final_merged_xception_emotion.csv"))
-    p.add_argument("--min_group_size", type=int, default=3)
+    p.add_argument("--min_fake", type=int, default=5,
+                   help="Minimum number of fake videos required per cell. Cells below this are marked '—'.")
     p.add_argument("--date", default=None)
     p.add_argument("--log-level", default="INFO")
     return p.parse_args()
@@ -42,64 +43,92 @@ def parse_args() -> argparse.Namespace:
 
 def _build_auc_pivot(df: pd.DataFrame, label_col: str, score_col: str,
                      family_col: str, emotion_col: str,
-                     min_group_size: int) -> pd.DataFrame:
-    """Build pivot table: rows=forgery_family, cols=emotion, values=AUC.
+                     min_fake: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Build AUC pivot and n_fake pivot filtered by min_fake per cell.
 
-    Real videos (family=NaN) are included in every family's pool as the
-    negative class — this is required for AUC to be defined, since each
-    forgery family contains only fake videos.
+    Returns (pivot_auc, pivot_nfake) both indexed by forgery_family.
+
+    Only cells where n_fake >= min_fake are populated; others are NaN.
+    Real videos are always included as negatives — they are not counted
+    in n_fake (which reflects only the fake video count per cell).
     """
-    rows = []
-    reals = df[df[label_col] == 0]          # all real videos
-    families = sorted(df[family_col].dropna().unique())
-    emotions = sorted(df[emotion_col].dropna().unique())
+    reals = df[df[label_col] == 0]
+    families = sorted(df[family_col].dropna().astype(str).unique())
+    emotions = sorted(df[emotion_col].dropna().astype(str).unique())
 
+    auc_rows, n_rows = [], []
     for family in families:
-        fakes_this_family = df[df[family_col] == family]
-        # Pool = real videos of any emotion + fake videos of this family
-        pool = pd.concat([reals, fakes_this_family], ignore_index=True)
-        auc_by_emo = compute_subgroup_auc(
-            pool, label_col=label_col, score_col=score_col,
-            group_col=emotion_col, min_group_size=min_group_size,
-        ).set_index(emotion_col)["AUC"]
-        row = {"forgery_family": family}
+        fakes_family = df[df[family_col].astype(str) == family]
+        auc_row = {"forgery_family": family}
+        n_row = {"forgery_family": family}
         for emo in emotions:
-            row[emo] = auc_by_emo.get(emo, float("nan"))
-        rows.append(row)
+            fakes_cell = fakes_family[fakes_family[emotion_col].astype(str) == emo]
+            n_fake = len(fakes_cell)
+            n_row[emo] = n_fake
+            if n_fake < min_fake:
+                auc_row[emo] = float("nan")
+                continue
+            # Pool = all reals (any emotion) + fakes from this family×emotion cell
+            reals_cell = reals[reals[emotion_col].astype(str) == emo]
+            pool = pd.concat([reals_cell, fakes_cell], ignore_index=True)
+            if pool[label_col].nunique() < 2 or len(pool) < 2:
+                auc_row[emo] = float("nan")
+                continue
+            from sklearn.metrics import roc_auc_score
+            try:
+                auc_row[emo] = float(roc_auc_score(pool[label_col].values,
+                                                    pool[score_col].values))
+            except Exception:
+                auc_row[emo] = float("nan")
+        auc_rows.append(auc_row)
+        n_rows.append(n_row)
 
-    return pd.DataFrame(rows).set_index("forgery_family")
+    pivot_auc = pd.DataFrame(auc_rows).set_index("forgery_family")
+    pivot_n = pd.DataFrame(n_rows).set_index("forgery_family")
+    return pivot_auc, pivot_n
 
 
 def _save_heatmap(pivot: pd.DataFrame, n_pivot: pd.DataFrame,
-                  out_path: Path) -> None:
+                  out_path: Path, min_fake: int) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    # Drop all-NaN columns
+    # Drop columns where every cell is NaN (no family has enough fakes)
     pivot_clean = pivot.dropna(axis=1, how="all")
+    n_clean = n_pivot.reindex(columns=pivot_clean.columns)
 
-    fig, ax = plt.subplots(figsize=(max(8, len(pivot_clean.columns) * 0.6),
-                                    max(3, len(pivot_clean) * 0.8)))
-    im = ax.imshow(pivot_clean.values.astype(float), aspect="auto",
-                   cmap="RdYlGn", vmin=0.3, vmax=1.0)
+    fig, ax = plt.subplots(figsize=(max(8, len(pivot_clean.columns) * 1.1),
+                                    max(3, len(pivot_clean) * 1.2)))
+
+    # Mask NaN cells so imshow doesn't colour them
+    data = pivot_clean.values.astype(float)
+    masked = np.ma.masked_invalid(data)
+    cmap = plt.get_cmap("RdYlGn").copy()
+    cmap.set_bad(color="#e0e0e0")   # grey for masked cells
+    im = ax.imshow(masked, aspect="auto", cmap=cmap, vmin=0.3, vmax=1.0)
 
     ax.set_xticks(range(len(pivot_clean.columns)))
-    ax.set_xticklabels(pivot_clean.columns, rotation=45, ha="right", fontsize=8)
+    ax.set_xticklabels(pivot_clean.columns, rotation=40, ha="right", fontsize=9)
     ax.set_yticks(range(len(pivot_clean.index)))
-    ax.set_yticklabels(pivot_clean.index, fontsize=9)
+    ax.set_yticklabels(pivot_clean.index, fontsize=10)
 
-    # Annotate cells
     for i, family in enumerate(pivot_clean.index):
         for j, emo in enumerate(pivot_clean.columns):
             val = pivot_clean.loc[family, emo]
-            n_val = n_pivot.loc[family, emo] if not np.isnan(val) else ""
-            txt = f"{val:.2f}\n(n={int(n_val)})" if not np.isnan(val) else "—"
-            ax.text(j, i, txt, ha="center", va="center", fontsize=6.5,
-                    color="black" if 0.35 < val < 0.85 else "white")
+            n_fake = int(n_clean.loc[family, emo]) if not np.isnan(n_clean.loc[family, emo]) else 0
+            if np.isnan(val):
+                ax.text(j, i, f"—\n(n={n_fake})", ha="center", va="center",
+                        fontsize=7, color="#888888")
+            else:
+                txt_color = "white" if (val < 0.4 or val > 0.85) else "black"
+                ax.text(j, i, f"{val:.2f}\n(n={n_fake})", ha="center", va="center",
+                        fontsize=8, color=txt_color, fontweight="bold")
 
-    plt.colorbar(im, ax=ax, label="AUC")
-    ax.set_title("Deepfake Detection AUC: Forgery Family × Dominant Emotion")
+    plt.colorbar(im, ax=ax, label="AUC (AUROC)", shrink=0.8)
+    ax.set_title("Deepfake Detection AUC: Forgery Family × Dominant Emotion\n"
+                 f"(n = fake videos per cell; cells with n < {min_fake} shown in grey)",
+                 fontsize=10)
     plt.tight_layout()
     tmp = out_path.with_name(out_path.stem + ".tmp.png")
     plt.savefig(tmp, dpi=150, bbox_inches="tight")
@@ -126,25 +155,11 @@ def main() -> None:
     family_col = "manipulation_family"
     emotion_col = "dominant_emotion"
 
-    pivot_auc = _build_auc_pivot(df, label_col, score_col, family_col, emotion_col,
-                                  args.min_group_size)
-
-    # Also build n-count pivot for annotation (count of fake videos per cell)
-    reals = df[df[label_col] == 0]
-
-    def _n_pivot(df: pd.DataFrame) -> pd.DataFrame:
-        rows = []
-        for family in pivot_auc.index:
-            fakes = df[df[family_col] == family]
-            pool = pd.concat([reals, fakes], ignore_index=True)
-            row = {"forgery_family": family}
-            for emo in pivot_auc.columns:
-                g = pool[pool[emotion_col] == emo]
-                row[emo] = len(g) if len(g) >= args.min_group_size else float("nan")
-            rows.append(row)
-        return pd.DataFrame(rows).set_index("forgery_family")
-
-    pivot_n = _n_pivot(df)
+    pivot_auc, pivot_n = _build_auc_pivot(df, label_col, score_col, family_col,
+                                           emotion_col, args.min_fake)
+    logger.info("Cells with AUC: %d / %d  (min_fake=%d)",
+                int(pivot_auc.notna().sum().sum()),
+                int(pivot_auc.size), args.min_fake)
 
     # Flat CSV (long format)
     long = (pivot_auc.reset_index()
@@ -159,16 +174,24 @@ def main() -> None:
     tmp.rename(csv_path)
     logger.info("Saved table → %s", csv_path)
 
-    # LaTeX pivot
+    # LaTeX pivot — show AUC where available, n_fake in parentheses, else "—"
     tex_path = out_dir / "tables" / f"{args.subset}_exp06_forgery_emotion_pivot.tex"
-    pivot_fmt = pivot_auc.map(lambda x: f"{x:.3f}" if (isinstance(x, float) and not np.isnan(x)) else "—")
+    pivot_fmt = pivot_auc.copy().astype(object)
+    for family in pivot_auc.index:
+        for emo in pivot_auc.columns:
+            val = pivot_auc.loc[family, emo]
+            n = int(pivot_n.loc[family, emo])
+            if isinstance(val, float) and not np.isnan(val):
+                pivot_fmt.loc[family, emo] = f"{val:.3f} (n={n})"
+            else:
+                pivot_fmt.loc[family, emo] = f"— (n={n})"
     tmp = tex_path.with_suffix(".tex.tmp")
     pivot_fmt.to_latex(tmp, escape=True)
     tmp.rename(tex_path)
 
     # Heatmap
     fig_path = out_dir / "figures" / f"{args.subset}_exp06_heatmap.png"
-    _save_heatmap(pivot_auc, pivot_n, fig_path)
+    _save_heatmap(pivot_auc, pivot_n, fig_path, args.min_fake)
     logger.info("Saved figure → %s", fig_path)
 
     write_run_metadata(

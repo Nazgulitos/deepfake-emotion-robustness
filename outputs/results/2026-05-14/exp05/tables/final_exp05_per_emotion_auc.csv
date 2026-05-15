@@ -1,0 +1,6 @@
+dominant_emotion,n,n_real,n_fake,AUC
+astonishment_surprise,51,27,24,0.7114197530864198
+contentment,53,27,26,0.6709401709401709
+elation,30,18,12,0.6342592592592593
+anger,8,4,4,0.625
+amusement,5,0,5,

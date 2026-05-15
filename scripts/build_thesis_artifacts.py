@@ -1,6 +1,8 @@
 """Aggregate all experiment outputs into thesis-ready artifacts.
 
-Reads:  outputs/results/YYYY-MM-DD/  (most recent dated folder by default)
+Reads:  outputs/results/  — scans ALL dated sub-folders and uses the
+        most recent run per experiment (expXX), so re-running one
+        experiment never loses results from others.
 Writes: outputs/thesis_artifacts/YYYY-MM-DD/
     all_tables.tex
     all_figures.zip
@@ -30,66 +32,76 @@ from src.utils.run_metadata import now_utc
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--date", default=None,
-                   help="Results date folder (YYYY-MM-DD). Default: most recent.")
+                   help="Output artifact date folder (YYYY-MM-DD). Default: today. "
+                        "Input: always scans ALL dated results folders, newest-per-experiment wins.")
     p.add_argument("--results_root", type=Path, default=Path("outputs/results"))
     p.add_argument("--out_root", type=Path, default=Path("outputs/thesis_artifacts"))
     p.add_argument("--log-level", default="INFO")
     return p.parse_args()
 
 
-def _find_results_dir(results_root: Path, date: str | None,
-                      logger: logging.Logger) -> Path:
-    if date:
-        d = results_root / date
-        if not d.exists():
-            raise FileNotFoundError(f"Results folder not found: {d}")
-        return d
-    candidates = sorted(
+def _latest_exp_dirs(results_root: Path, logger: logging.Logger) -> dict[str, Path]:
+    """Return {exp_id: most-recent-dated-path} by scanning all dated folders.
+
+    Example: if exp05 ran on 2026-05-14 and exp09 ran on 2026-05-15, both
+    are returned — the newer date wins per experiment.
+    """
+    dated_dirs = sorted(
         [p for p in results_root.iterdir() if p.is_dir() and p.name[:4].isdigit()],
-        reverse=True,
+        reverse=True,  # newest first
     )
-    if not candidates:
+    if not dated_dirs:
         raise FileNotFoundError(f"No dated results folders found in {results_root}")
-    logger.info("Using most recent results folder: %s", candidates[0])
-    return candidates[0]
+
+    latest: dict[str, Path] = {}
+    for dated in dated_dirs:
+        for exp_dir in dated.iterdir():
+            if exp_dir.is_dir() and exp_dir.name not in latest:
+                latest[exp_dir.name] = exp_dir
+                logger.info("  using %s from %s", exp_dir.name, dated.name)
+    return latest
 
 
-def _collect_tex_tables(results_dir: Path, logger: logging.Logger) -> list[tuple[str, str]]:
+def _collect_tex_tables(exp_dirs: dict[str, Path],
+                        logger: logging.Logger) -> list[tuple[str, str]]:
     """Return list of (exp_label, tex_content) for all .tex table files."""
     tables = []
-    for tex_path in sorted(results_dir.rglob("*.tex")):
-        exp_id = tex_path.parts[-3] if len(tex_path.parts) >= 3 else "unknown"
-        label = f"{exp_id}/{tex_path.name}"
-        content = tex_path.read_text(encoding="utf-8")
-        tables.append((label, content))
-        logger.info("  + table: %s", label)
+    for exp_id, exp_dir in sorted(exp_dirs.items()):
+        for tex_path in sorted(exp_dir.rglob("*.tex")):
+            label = f"{exp_id}/{tex_path.name}"
+            content = tex_path.read_text(encoding="utf-8")
+            tables.append((label, content))
+            logger.info("  + table: %s", label)
     return tables
 
 
-def _collect_figures(results_dir: Path) -> list[Path]:
-    return sorted(results_dir.rglob("*.png"))
+def _collect_figures(exp_dirs: dict[str, Path]) -> list[Path]:
+    figures = []
+    for exp_dir in sorted(exp_dirs.values()):
+        figures.extend(sorted(exp_dir.rglob("*.png")))
+    return figures
 
 
-def _read_stats_json(results_dir: Path) -> dict[str, dict]:
+def _read_stats_json(exp_dirs: dict[str, Path]) -> dict[str, dict]:
     stats: dict[str, dict] = {}
-    for json_path in sorted(results_dir.rglob("*.json")):
-        if "metadata" in json_path.name:
-            continue
-        exp_id = json_path.parts[-3] if len(json_path.parts) >= 3 else "unknown"
-        key = f"{exp_id}/{json_path.stem}"
-        try:
-            stats[key] = json.loads(json_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            pass
+    for exp_id, exp_dir in sorted(exp_dirs.items()):
+        for json_path in sorted(exp_dir.rglob("*.json")):
+            if "metadata" in json_path.name:
+                continue
+            key = f"{exp_id}/{json_path.stem}"
+            try:
+                stats[key] = json.loads(json_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                pass
     return stats
 
 
-def _read_csv_results(results_dir: Path) -> dict[str, pd.DataFrame]:
+def _read_csv_results(exp_dirs: dict[str, Path]) -> dict[str, pd.DataFrame]:
     tables: dict[str, pd.DataFrame] = {}
-    for csv_path in sorted(results_dir.rglob("*.csv")):
-        exp_id = csv_path.parts[-3] if len(csv_path.parts) >= 3 else "unknown"
-        key = f"{exp_id}/{csv_path.stem}"
-        tables[key] = pd.read_csv(csv_path)
+    for exp_id, exp_dir in sorted(exp_dirs.items()):
+        for csv_path in sorted(exp_dir.rglob("*.csv")):
+            key = f"{exp_id}/{csv_path.stem}"
+            tables[key] = pd.read_csv(csv_path)
     return tables
 
 
@@ -208,14 +220,15 @@ def main() -> None:
     setup_logging(level=args.log_level, log_file=log_path)
     logger = logging.getLogger("build_thesis_artifacts")
 
-    results_dir = _find_results_dir(args.results_root, args.date, logger)
-    logger.info("Reading results from %s", results_dir)
+    logger.info("Scanning all dated folders in %s (newest wins per experiment)", args.results_root)
+    exp_dirs = _latest_exp_dirs(args.results_root, logger)
+    logger.info("Found %d experiments: %s", len(exp_dirs), sorted(exp_dirs))
 
     # Collect
-    tex_tables = _collect_tex_tables(results_dir, logger)
-    figures = _collect_figures(results_dir)
-    stats = _read_stats_json(results_dir)
-    csv_tables = _read_csv_results(results_dir)
+    tex_tables = _collect_tex_tables(exp_dirs, logger)
+    figures = _collect_figures(exp_dirs)
+    stats = _read_stats_json(exp_dirs)
+    csv_tables = _read_csv_results(exp_dirs)
     logger.info("Found: %d tex tables, %d figures, %d stat files, %d csv tables",
                 len(tex_tables), len(figures), len(stats), len(csv_tables))
 

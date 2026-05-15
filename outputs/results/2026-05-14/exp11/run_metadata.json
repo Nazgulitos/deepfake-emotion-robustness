@@ -1,8 +1,8 @@
 {
-  "exp_id": "exp06",
-  "subset": "final",
+  "exp_id": "exp11",
+  "subset": "pilot",
   "seed": 42,
-  "git_commit": "84456afb43ee6e5cfea291f297652f3b67d0b14c",
+  "git_commit": "2366fff43d10f307795019baa23879126f277dd9",
   "python_version": "3.13.2 (main, Feb  4 2025, 14:51:09) [Clang 16.0.0 (clang-1600.0.26.6)]",
   "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
   "requirements_txt": "requirements.txt",
@@ -18,13 +18,13 @@
     "seaborn": "0.13.2"
   },
   "cli_args": {
-    "exp_id": "exp06",
-    "subset": "final",
-    "merged_table": "datasets/metadata/final_merged_xception_emotion.csv",
-    "min_fake": 5,
-    "date": null,
+    "exp_id": "exp11",
+    "final_merged": "datasets/metadata/final_merged_xception_emotion.csv",
+    "pilot_scores": "datasets/detector_processed/pilot_detector_scores.csv",
+    "pilot_emotion": "datasets/emotion_annotated/metadata/pilot_video_emotion_features.csv",
+    "date": "2026-05-14",
     "log_level": "INFO"
   },
-  "start_time": "2026-05-15T13:20:45.950382+00:00",
-  "end_time": "2026-05-15T13:20:46.640722+00:00"
+  "start_time": "2026-05-14T14:43:25.240953+00:00",
+  "end_time": "2026-05-14T14:43:25.961454+00:00"
 }
