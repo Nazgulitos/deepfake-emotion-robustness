@@ -57,11 +57,11 @@ def _get_device(requested: str | None) -> str:
 
 
 def _load_model(device: str):
-    from transformers import AutoFeatureExtractor, AutoModelForImageClassification
-    extractor = AutoFeatureExtractor.from_pretrained(HF_MODEL_ID)
+    from transformers import AutoImageProcessor, AutoModelForImageClassification
+    processor = AutoImageProcessor.from_pretrained(HF_MODEL_ID)
     model = AutoModelForImageClassification.from_pretrained(HF_MODEL_ID)
     model.to(device).eval()
-    return extractor, model
+    return processor, model
 
 
 def _infer_batch(images: list, extractor, model, device: str,
@@ -101,7 +101,7 @@ def main() -> None:
     # Import heavy deps here so the script fails fast if they're missing
     try:
         import torch
-        from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+        from transformers import AutoImageProcessor, AutoModelForImageClassification  # noqa: F401
     except ImportError:
         logger.error("Missing deps. Run: pip install transformers pillow torch torchvision")
         sys.exit(1)

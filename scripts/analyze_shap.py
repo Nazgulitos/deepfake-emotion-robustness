@@ -76,12 +76,13 @@ def main() -> None:
     try:
         import xgboost as xgb
     except ImportError:
-        logger.error("xgboost not installed. Run: pip install xgboost")
+        logger.error("xgboost not installed. Run: uv pip install xgboost  (into the active venv at %s)", sys.executable)
         sys.exit(1)
     try:
         import shap  # noqa: F401
     except ImportError:
-        logger.error("shap not installed. Run: pip install shap")
+        logger.error("shap not installed. Run: uv pip install shap  (into the active venv at %s)", sys.executable)
+        logger.error("Active python: %s", sys.executable)
         sys.exit(1)
 
     df = pd.read_csv(args.merged_table)

@@ -149,62 +149,89 @@ def _run_h2(df: pd.DataFrame, score_col: str,
 
 def _run_h3(df: pd.DataFrame, label_col: str, score_col: str,
             n_permutations: int, logger: logging.Logger) -> dict:
-    """H3: Fusion AUC > XceptionNet-only AUC — test on test-split videos."""
-    # We need fusion scores. Re-run a minimal LR fusion on test split to get per-video scores.
+    """H3: Fusion AUC > XceptionNet-only AUC.
+
+    Uses 5-fold GroupKFold on 'identity' to produce out-of-fold (OOF) fusion
+    scores that are never trained on the same identities they predict.
+    DeLong and permutation tests are run on the full OOF predictions,
+    giving an honest estimate of generalisation.
+    """
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import GroupKFold
+    from sklearn.preprocessing import StandardScaler
 
     feature_cols = [c for c in EMOTION_DESCRIPTORS if c in df.columns]
-    test_df = df[df["split"] == "test"].dropna(subset=[score_col, label_col] + feature_cols).copy()
+    clean = df.dropna(subset=[score_col, label_col, "identity"] + feature_cols).copy()
+    clean = clean.reset_index(drop=True)
 
-    if len(test_df) < 20:
-        logger.warning("Test split has only %d rows — H3 unreliable", len(test_df))
-
-    y = test_df[label_col].values
-    baseline_scores = test_df[score_col].values
-
-    # Train LR fusion on train+val, evaluate on test
-    train_df = df[df["split"].isin(["train", "val"])].dropna(
-        subset=[score_col, label_col] + feature_cols)
-    if len(train_df) == 0:
-        # All-test scenario (current data): use cross-val approximation
-        logger.warning("No train/val split found — using in-sample fusion scores for H3 (conservative)")
-        X_all = df.dropna(subset=[score_col] + feature_cols)[[score_col] + feature_cols].values
-        y_all = df.dropna(subset=[score_col, label_col] + feature_cols)[label_col].values
+    if "identity" not in clean.columns or clean["identity"].isna().all():
+        logger.warning("'identity' column missing — falling back to in-sample H3 (unreliable)")
+        # in-sample fallback (kept only as safety net)
+        X_all = clean[[score_col] + feature_cols].values
+        y_all = clean[label_col].values
         lr = LogisticRegression(max_iter=1000, random_state=SEED)
         lr.fit(X_all, y_all)
-        test_feat = test_df[[score_col] + feature_cols].values
-        fusion_scores = lr.predict_proba(test_feat)[:, 1]
+        fusion_scores = lr.predict_proba(X_all)[:, 1]
+        y = y_all
+        evaluation_method = "in_sample_fallback"
     else:
-        X_train = train_df[[score_col] + feature_cols].values
-        y_train = train_df[label_col].values
-        lr = LogisticRegression(max_iter=1000, random_state=SEED)
-        lr.fit(X_train, y_train)
-        test_feat = test_df[[score_col] + feature_cols].values
-        fusion_scores = lr.predict_proba(test_feat)[:, 1]
+        X = clean[[score_col] + feature_cols].values
+        y = clean[label_col].values
+        groups = clean["identity"].values
+        n_splits = min(5, clean["identity"].nunique())
+        gkf = GroupKFold(n_splits=n_splits)
+        fusion_scores = np.zeros(len(clean))
 
+        fold_log = []
+        for fold, (train_idx, val_idx) in enumerate(gkf.split(X, y, groups=groups)):
+            sc = StandardScaler()
+            X_tr = sc.fit_transform(X[train_idx])
+            X_val = sc.transform(X[val_idx])
+            lr = LogisticRegression(max_iter=1000, random_state=SEED)
+            lr.fit(X_tr, y[train_idx])
+            fusion_scores[val_idx] = lr.predict_proba(X_val)[:, 1]
+            fold_auc = float(roc_auc_score(y[val_idx], fusion_scores[val_idx])) \
+                if len(np.unique(y[val_idx])) > 1 else float("nan")
+            fold_log.append({
+                "fold": fold + 1,
+                "val_identities": sorted(set(groups[val_idx])),
+                "n_train": int(len(train_idx)),
+                "n_val": int(len(val_idx)),
+                "fold_fusion_auc": fold_auc,
+            })
+            logger.info("Fold %d: val_ids=%s  n_val=%d  fold_auc=%.3f",
+                        fold + 1, sorted(set(groups[val_idx])), len(val_idx), fold_auc)
+
+        evaluation_method = f"groupkfold_{n_splits}_fold_on_identity"
+
+    baseline_scores = clean[score_col].values
     auc_baseline = float(roc_auc_score(y, baseline_scores))
     auc_fusion = float(roc_auc_score(y, fusion_scores))
 
-    # DeLong comparison (same samples)
     delong_res = delong_compare(y, fusion_scores, baseline_scores)
-
-    # Permutation test
     perm_res = permutation_auc_test(y, fusion_scores, baseline_scores,
                                     n_permutations=n_permutations, seed=SEED)
 
     result = {
+        "evaluation_method": evaluation_method,
         "auc_baseline_only": auc_baseline,
-        "auc_fusion": auc_fusion,
+        "auc_fusion_oof": auc_fusion,
         "delta_auc": auc_fusion - auc_baseline,
         "delong": delong_res,
         "permutation": perm_res,
-        "n_test": int(len(y)),
+        "n_total": int(len(y)),
+        "n_identities": int(clean["identity"].nunique()),
         "feature_cols_used": [score_col] + feature_cols,
+        "fold_details": fold_log if "fold_log" in dir() else [],
     }
-    logger.info("H3: baseline AUC=%.4f  fusion AUC=%.4f  Δ=%.4f  p_delong=%.4f",
-                auc_baseline, auc_fusion, auc_fusion - auc_baseline,
-                delong_res.get("p_value", float("nan")))
+    logger.info(
+        "H3 [%s]: baseline AUC=%.4f  OOF fusion AUC=%.4f  Δ=%.4f  "
+        "p_delong=%.4f  p_perm=%.4f",
+        evaluation_method, auc_baseline, auc_fusion, auc_fusion - auc_baseline,
+        delong_res.get("p_value", float("nan")),
+        perm_res.get("p_value", float("nan")),
+    )
     return result
 
 

@@ -172,11 +172,17 @@ def _build_summary(csv_tables: dict[str, pd.DataFrame],
 
     if h3_key:
         h3 = stats[h3_key]
+        auc_fusion = h3.get("auc_fusion_oof", h3.get("auc_fusion", float("nan")))
+        auc_base = h3.get("auc_baseline_only", float("nan"))
+        delta = h3.get("delta_auc", float("nan"))
+        p_delong = h3.get("delong", {}).get("p_value", float("nan"))
+        eval_method = h3.get("evaluation_method", "")
         lines.append(
-            f"**H3 (Fusion vs Baseline):** Baseline AUC={h3.get('auc_baseline_only', 'N/A'):.3f}, "
-            f"Fusion AUC={h3.get('auc_fusion', 'N/A'):.3f} "
-            f"(Δ={h3.get('delta_auc', 'N/A'):.3f}). "
-            f"DeLong p={h3.get('delong', {}).get('p_value', 'N/A')}.\n"
+            f"**H3 (Fusion vs Baseline):** Baseline AUC={auc_base:.3f}, "
+            f"Fusion AUC (OOF)={auc_fusion:.3f} "
+            f"(Δ={delta:.3f}). "
+            f"DeLong p={p_delong:.4g}. "
+            f"Method: {eval_method}.\n"
         )
 
     # Exp 11 — pilot holdout
