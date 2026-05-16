@@ -1,0 +1,5 @@
+forgery_family_error_group,n,n_real,n_fake,error_rate,fp_rate,fn_rate,AUC
+FaceSwap,133,0,133,0.42105263157894735,0.0,0.42105263157894735,
+real,400,400,0,0.14,0.14,0.0,
+FaceReenact,129,0,129,0.12403100775193798,0.0,0.12403100775193798,
+TalkingFace,128,0,128,0.046875,0.0,0.046875,

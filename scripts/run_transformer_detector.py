@@ -72,6 +72,35 @@ def _check_prerequisites(args: argparse.Namespace, logger: logging.Logger) -> bo
             args.dfb_python,
         )
         ok = False
+    elif args.dfb_dir.exists():
+        probe = subprocess.run(
+            [
+                str(args.dfb_python),
+                "-c",
+                (
+                    "import sys\n"
+                    "sys.path.insert(0, 'training')\n"
+                    "import numpy, pandas, sklearn, torch, torchvision, PIL, yaml\n"
+                    "from detectors.ucf_detector import UCFDetector\n"
+                    "print('dfb_import_probe_ok')\n"
+                ),
+            ],
+            cwd=str(args.dfb_dir),
+            text=True,
+            capture_output=True,
+        )
+        if probe.returncode != 0:
+            logger.error(
+                "DeepfakeBench venv import probe failed.\n"
+                "This usually means binary packages inside DeepfakeBench/.venv "
+                "are ABI-incompatible, commonly pandas/scikit-learn vs numpy.\n"
+                "Repair on spectrum from the DeepfakeBench directory with:\n"
+                "  .venv/bin/python -m pip install --force-reinstall "
+                "'numpy<2' 'pandas<2.2' 'scikit-learn<1.4'\n\n"
+                "Probe stderr:\n%s",
+                probe.stderr.strip(),
+            )
+            ok = False
     return ok
 
 
@@ -91,10 +120,11 @@ def _write_inference_script(manifest: pd.DataFrame, weights: Path,
         })
 
     script = f"""
-import sys, json, csv
+import sys, json, csv, importlib, pkgutil
 from pathlib import Path
 
-sys.path.insert(0, {str(dfb_dir / 'training')!r})
+training_dir = {str(dfb_dir / 'training')!r}
+sys.path.insert(0, training_dir)
 
 import torch
 import numpy as np
@@ -105,17 +135,25 @@ from torchvision import transforms
 import yaml
 from detectors import DETECTOR
 
-config_candidates = [
-    {str(dfb_dir / 'training/config/detector/ucf.yaml')!r},
-]
-config_path = None
-for c in config_candidates:
-    if Path(c).exists():
-        config_path = c
-        break
+# Import UCF explicitly first. If its dependencies are broken, fail here with
+# the real traceback instead of hiding the error during registry population.
+import detectors.ucf_detector
 
-if config_path is None:
-    # list available configs for debugging
+# Force-import every detector module so they self-register into DETECTOR
+import detectors as _det_pkg
+for _importer, _modname, _ispkg in pkgutil.walk_packages(
+        path=_det_pkg.__path__, prefix=_det_pkg.__name__ + '.', onerror=lambda x: None):
+    try:
+        importlib.import_module(_modname)
+    except Exception:
+        if _modname.endswith('.ucf_detector'):
+            raise
+        pass
+
+print(f"Registered detectors: {{list(DETECTOR.data.keys())}}", flush=True)
+
+config_path = {str(dfb_dir / 'training/config/detector/ucf.yaml')!r}
+if not Path(config_path).exists():
     cfg_dir = Path({str(dfb_dir / 'training/config/detector')!r})
     available = list(cfg_dir.glob('*.yaml')) if cfg_dir.exists() else []
     raise FileNotFoundError(f"ucf.yaml not found. Available: {{available}}")
@@ -127,6 +165,9 @@ config['weights_path'] = {str(weights)!r}
 device = {device!r}
 
 model_name = config['model_name']
+if model_name not in DETECTOR.data:
+    raise KeyError(f"'{{model_name}}' not in DETECTOR registry: {{list(DETECTOR.data.keys())}}")
+
 model = DETECTOR[model_name](config)
 
 state = torch.load({str(weights)!r}, map_location=device)
@@ -155,8 +196,13 @@ def flush(batch_imgs, batch_meta):
     if not batch_imgs:
         return []
     tensors = torch.stack(batch_imgs).to(device)
+    labels = torch.tensor(
+        [1 if str(m.get('label', '')).lower() == 'fake' else 0 for m in batch_meta],
+        dtype=torch.long,
+        device=device,
+    )
     with torch.no_grad():
-        out = model({{'image': tensors}}, inference=True)
+        out = model({{'image': tensors, 'label': labels}}, inference=True)
         if isinstance(out, dict):
             logits = out.get('cls', out.get('logits', list(out.values())[0]))
         else:
@@ -222,7 +268,7 @@ def main() -> None:
     logger.info("Loaded manifest: %d rows subset=%s", len(manifest), args.subset)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    frame_csv = args.out_dir / f"{args.subset}_ucf_frame_scores.csv"
+    frame_csv = (args.out_dir / f"{args.subset}_ucf_frame_scores.csv").resolve()
 
     # Write and run the inference script inside DeepfakeBench's venv
     infer_script = _write_inference_script(
@@ -259,7 +305,7 @@ def main() -> None:
                      .map({"fake": 1, "real": 0}).fillna(0).astype(int))
     video_df["video_score_mode"] = "ucf_mean"
 
-    video_path = args.out_dir / f"{args.subset}_ucf_scores.csv"
+    video_path = (args.out_dir / f"{args.subset}_ucf_scores.csv").resolve()
     video_df.to_csv(video_path, index=False)
     logger.info("Saved video scores → %s  (%d videos)", video_path, len(video_df))
 

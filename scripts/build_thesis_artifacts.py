@@ -24,6 +24,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
 from src.utils.logging_utils import setup_logging
 from src.utils.run_metadata import now_utc
@@ -105,6 +112,56 @@ def _read_csv_results(exp_dirs: dict[str, Path]) -> dict[str, pd.DataFrame]:
     return tables
 
 
+def _read_canonical_csvs(root: Path, logger: logging.Logger) -> dict[str, pd.DataFrame]:
+    """Read legacy/canonical result CSVs that are not under outputs/results."""
+    paths = {
+        "exp01/final_huggingface_scores": root / "datasets/detector_processed/final_huggingface_scores.csv",
+        "exp02/final_xception_ablation_results": root / "datasets/metadata/final_xception_ablation_results.csv",
+        "exp03/final_xception_xgboost_ablation_results": root / "datasets/metadata/final_xception_xgboost_ablation_results.csv",
+        "exp04/final_xception_auc_by_arousal": root / "datasets/metadata/final_xception_auc_by_arousal.csv",
+        "exp04/final_xception_auc_by_emotion": root / "datasets/metadata/final_xception_auc_by_emotion.csv",
+        "exp08/final_ucf_scores": root / "datasets/detector_processed/final_ucf_scores.csv",
+        "exp08/pilot_ucf_scores": root / "datasets/detector_processed/pilot_ucf_scores.csv",
+    }
+
+    tables: dict[str, pd.DataFrame] = {}
+    for key, path in paths.items():
+        if path.exists():
+            tables[key] = pd.read_csv(path)
+            logger.info("  + canonical csv: %s", path)
+    return tables
+
+
+def _binary_metrics(df: pd.DataFrame) -> dict[str, float]:
+    y = df["y"] if "y" in df.columns else df["label"].astype(str).map({"fake": 1, "real": 0})
+    valid = df.assign(_y=y).dropna(subset=["_y", "detector_score"])
+    y_true = valid["_y"].astype(int)
+    scores = valid["detector_score"].astype(float)
+    preds = (scores >= 0.5).astype(int)
+    return {
+        "AUC": float(roc_auc_score(y_true, scores)),
+        "ACC": float(accuracy_score(y_true, preds)),
+        "F1": float(f1_score(y_true, preds, zero_division=0)),
+        "Precision": float(precision_score(y_true, preds, zero_division=0)),
+        "Recall": float(recall_score(y_true, preds, zero_division=0)),
+        "n": float(len(valid)),
+    }
+
+
+def _best_row(df: pd.DataFrame, name_col: str) -> pd.Series | None:
+    if df.empty or "AUC" not in df.columns or name_col not in df.columns:
+        return None
+    return df.sort_values("AUC", ascending=False).iloc[0]
+
+
+def _format_metrics(metrics: dict[str, float]) -> str:
+    return (
+        f"AUC={metrics['AUC']:.3f}, ACC={metrics['ACC']:.3f}, "
+        f"F1={metrics['F1']:.3f}, Precision={metrics['Precision']:.3f}, "
+        f"Recall={metrics['Recall']:.3f}, n={int(metrics['n'])}"
+    )
+
+
 def _build_latex(tables: list[tuple[str, str]]) -> str:
     parts = [
         r"\documentclass[12pt]{article}",
@@ -124,9 +181,68 @@ def _build_latex(tables: list[tuple[str, str]]) -> str:
 
 
 def _build_summary(csv_tables: dict[str, pd.DataFrame],
-                   stats: dict[str, dict]) -> str:
+                   stats: dict[str, dict],
+                   exp_dirs: dict[str, Path]) -> str:
     lines = ["# Results Summary — Chapter 4\n",
              f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n"]
+
+    # Exp 01 — HuggingFace detector baseline
+    exp01_key = next((k for k in csv_tables if "final_huggingface_scores" in k), None)
+    if exp01_key:
+        metrics = _binary_metrics(csv_tables[exp01_key])
+        lines += [
+            "## Exp.01 — HuggingFace Detector Baseline\n",
+            f"Final-set HuggingFace detector performance: {_format_metrics(metrics)}.\n",
+        ]
+
+    # Exp 02 — Xception + logistic regression ablation
+    exp02_key = next((k for k in csv_tables if "final_xception_ablation_results" in k), None)
+    if exp02_key:
+        df = csv_tables[exp02_key]
+        best = _best_row(df, "ablation")
+        if best is not None:
+            lines += [
+                "## Exp.02 — Xception + Logistic Regression Ablation\n",
+                f"Best ablation: {best['ablation']} "
+                f"(AUC={best['AUC']:.3f}, ACC={best['ACC']:.3f}, F1={best['F1']:.3f}).\n",
+            ]
+
+    # Exp 03 — Xception + XGBoost ablation
+    exp03_key = next((k for k in csv_tables if "final_xception_xgboost_ablation_results" in k), None)
+    if exp03_key:
+        df = csv_tables[exp03_key]
+        best = _best_row(df, "ablation")
+        if best is not None:
+            lines += [
+                "## Exp.03 — Xception + XGBoost Ablation\n",
+                f"Best ablation: {best['ablation']} "
+                f"(AUC={best['AUC']:.3f}, ACC={best['ACC']:.3f}, F1={best['F1']:.3f}).\n",
+            ]
+
+    # Exp 04 — arousal/emotion subgroup robustness
+    exp04_arousal_key = next((k for k in csv_tables if "final_xception_auc_by_arousal" in k), None)
+    exp04_emotion_key = next((k for k in csv_tables if "final_xception_auc_by_emotion" in k), None)
+    if exp04_arousal_key or exp04_emotion_key:
+        lines.append("## Exp.04 — Xception Subgroup Robustness\n")
+        if exp04_arousal_key:
+            df = csv_tables[exp04_arousal_key]
+            if {"arousal_bin", "AUC"}.issubset(df.columns):
+                high = df.sort_values("AUC", ascending=False).iloc[0]
+                low = df.sort_values("AUC", ascending=True).iloc[0]
+                lines.append(
+                    f"Arousal subgroup AUC ranged from {low['AUC']:.3f} "
+                    f"({low['arousal_bin']}) to {high['AUC']:.3f} ({high['arousal_bin']}).\n"
+                )
+        if exp04_emotion_key:
+            df = csv_tables[exp04_emotion_key].dropna(subset=["AUC"])
+            if {"dominant_emotion", "AUC"}.issubset(df.columns) and not df.empty:
+                high = df.sort_values("AUC", ascending=False).iloc[0]
+                low = df.sort_values("AUC", ascending=True).iloc[0]
+                lines.append(
+                    f"Emotion subgroup AUC ranged from {low['AUC']:.3f} "
+                    f"({low['dominant_emotion']}) to {high['AUC']:.3f} "
+                    f"({high['dominant_emotion']}).\n"
+                )
 
     # Exp 05 — per-emotion AUC
     exp05_key = next((k for k in csv_tables if "exp05_per_emotion" in k), None)
@@ -197,6 +313,48 @@ def _build_summary(csv_tables: dict[str, pd.DataFrame],
             f"Method: {eval_method}.\n"
         )
 
+    # Exp 08 — UCF detector
+    exp08_final_key = next((k for k in csv_tables if "final_ucf_scores" in k), None)
+    exp08_pilot_key = next((k for k in csv_tables if "pilot_ucf_scores" in k), None)
+    if exp08_final_key or exp08_pilot_key:
+        lines.append("## Exp.08 — UCF Detector (DeepfakeBench)\n")
+        if exp08_final_key:
+            metrics = _binary_metrics(csv_tables[exp08_final_key])
+            lines.append(f"Final-set UCF performance: {_format_metrics(metrics)}.\n")
+        if exp08_pilot_key:
+            metrics = _binary_metrics(csv_tables[exp08_pilot_key])
+            lines.append(f"Pilot-set UCF performance: {_format_metrics(metrics)}.\n")
+
+    # Exp 09 — SHAP / descriptor importance
+    exp09_key = next((k for k in csv_tables if "exp09_shap_importance" in k), None)
+    if exp09_key:
+        df = csv_tables[exp09_key]
+        value_col = next(
+            (c for c in ["mean_abs_shap", "importance", "importance_share"] if c in df.columns),
+            None,
+        )
+        feature_col = "feature" if "feature" in df.columns else None
+        if value_col and feature_col and not df.empty:
+            top = df.sort_values(value_col, ascending=False).head(5)
+            top_features = ", ".join(
+                f"{row[feature_col]} ({row[value_col]:.3f})"
+                for _, row in top.iterrows()
+            )
+            lines += [
+                "## Exp.09 — SHAP Feature Importance\n",
+                f"Top SHAP-ranked descriptors/features: {top_features}. "
+                "See dependence and SHAP summary figures for full feature-level behavior.\n",
+            ]
+
+    # Exp 10 — representation visualization
+    if "exp10" in exp_dirs:
+        lines += [
+            "## Exp.10 — Emotion/Detector Representation Visualization\n",
+            "UMAP visualizations were generated by label, dominant emotion, and forgery family. "
+            "These figures provide qualitative evidence of how emotional descriptors and "
+            "forgery categories structure the evaluation space.\n",
+        ]
+
     # Exp 11 — pilot holdout
     exp11_key = next((k for k in csv_tables if "exp11_holdout" in k), None)
     if exp11_key:
@@ -205,6 +363,110 @@ def _build_summary(csv_tables: dict[str, pd.DataFrame],
             "## Exp.11 — Pilot Holdout\n",
             df.to_string(index=False) + "\n",
         ]
+
+    def add_fusion_ablation(exp_id: str, detector: str, title: str) -> None:
+        final_key = next(
+            (k for k in csv_tables if exp_id in k and f"{detector}_fusion_results" in k and "final" in k),
+            None,
+        )
+        pilot_key = next(
+            (k for k in csv_tables if exp_id in k and f"{detector}_fusion_results" in k and "pilot" in k),
+            None,
+        )
+        if not final_key and not pilot_key:
+            return
+
+        pretty = detector.upper() if detector == "ucf" else detector.capitalize()
+
+        def _best_model_row(df: pd.DataFrame, predicate) -> pd.Series | None:
+            subset = df[df["model"].map(predicate)]
+            if subset.empty:
+                return None
+            return subset.sort_values("AUC", ascending=False).iloc[0]
+
+        lines.append(f"## {title}\n")
+        if final_key:
+            df = csv_tables[final_key].sort_values("AUC", ascending=False)
+            best = df.iloc[0]
+            base_row = _best_model_row(df, lambda m: m == f"{detector}_only")
+            emotion_row = _best_model_row(df, lambda m: m == f"{detector}_emotion_lr")
+            quality_only_row = _best_model_row(df, lambda m: str(m).startswith("quality_only"))
+            quality_row = _best_model_row(df, lambda m: str(m).startswith(f"{detector}_quality"))
+            full_row = _best_model_row(
+                df, lambda m: str(m).startswith(f"{detector}_emotion_quality")
+            )
+            if full_row is None:
+                full_row = best
+
+            base_auc = base_row["AUC"] if base_row is not None else float("nan")
+            emotion_auc = emotion_row["AUC"] if emotion_row is not None else float("nan")
+            quality_only_auc = (
+                quality_only_row["AUC"] if quality_only_row is not None else float("nan")
+            )
+            quality_auc = quality_row["AUC"] if quality_row is not None else float("nan")
+            full_auc = full_row["AUC"]
+            delta = full_auc - base_auc
+            lines.append(
+                f"Final OOF best model: {best['model']} "
+                f"(AUC={best['AUC']:.3f}, ACC={best['ACC']:.3f}, F1={best['F1']:.3f}); "
+                f"delta vs {pretty}-only AUC={delta:.3f}.\n"
+            )
+            lines.append(
+                f"Ablation decomposition: {pretty}-only AUC={base_auc:.3f}; "
+                f"{pretty}+emotion AUC={emotion_auc:.3f} "
+                f"(delta={emotion_auc - base_auc:.3f}); "
+                f"quality-only AUC={quality_only_auc:.3f}; "
+                f"{pretty}+quality AUC={quality_auc:.3f} "
+                f"(delta={quality_auc - base_auc:.3f}); "
+                f"{pretty}+emotion+quality AUC={full_auc:.3f} "
+                f"(additional delta over quality={full_auc - quality_auc:.3f}).\n"
+            )
+
+            stats_key = next((k for k in stats if exp_id in k and "model_selection" in k), None)
+            if stats_key:
+                st = stats[stats_key]
+                emotion_perm = st.get("permutation_emotion_vs_detector", {})
+                controlled_perm = st.get("permutation_emotion_quality_vs_quality", {})
+                lines.append(
+                    f"Permutation tests: {pretty}+emotion vs {pretty}-only "
+                    f"p={emotion_perm.get('p_value', float('nan')):.4f}; "
+                    f"{pretty}+emotion+quality vs {pretty}+quality "
+                    f"p={controlled_perm.get('p_value', float('nan')):.4f}.\n"
+                )
+
+            importance_key = next(
+                (
+                    k
+                    for k in csv_tables
+                    if exp_id in k and f"{detector}_quality_feature_importance" in k
+                ),
+                None,
+            )
+            if importance_key:
+                imp = csv_tables[importance_key].sort_values("importance", ascending=False)
+                if not imp.empty:
+                    top = imp.iloc[0]
+                    lines.append(
+                        f"Top quality feature for the tuned quality model: "
+                        f"{top['feature']} "
+                        f"(importance share={top.get('importance_share', float('nan')):.3f}).\n"
+                    )
+        if pilot_key:
+            df = csv_tables[pilot_key].sort_values("AUC", ascending=False)
+            best = df.iloc[0]
+            by_model = df.set_index("model")
+            base_name = f"{detector}_only"
+            base_auc = by_model.loc[base_name, "AUC"] if base_name in by_model.index else float("nan")
+            delta = best["AUC"] - base_auc
+            lines.append(
+                f"Pilot transfer best model: {best['model']} "
+                f"(AUC={best['AUC']:.3f}, ACC={best['ACC']:.3f}, F1={best['F1']:.3f}); "
+                f"delta vs {pretty}-only AUC={delta:.3f}.\n"
+            )
+
+    add_fusion_ablation("exp12", "ucf", "Exp.12 — UCF + Emotion/Quality Fusion")
+    add_fusion_ablation("exp13", "huggingface", "Exp.13 — HuggingFace + Emotion/Quality Fusion")
+    add_fusion_ablation("exp14", "xception", "Exp.14 — Xception + Emotion/Quality Fusion")
 
     return "\n".join(lines)
 
@@ -229,6 +491,7 @@ def main() -> None:
     figures = _collect_figures(exp_dirs)
     stats = _read_stats_json(exp_dirs)
     csv_tables = _read_csv_results(exp_dirs)
+    csv_tables.update(_read_canonical_csvs(ROOT, logger))
     logger.info("Found: %d tex tables, %d figures, %d stat files, %d csv tables",
                 len(tex_tables), len(figures), len(stats), len(csv_tables))
 
@@ -250,7 +513,7 @@ def main() -> None:
     logger.info("Saved → %s (%d figures)", zip_out, len(figures))
 
     # results_summary.md
-    summary = _build_summary(csv_tables, stats)
+    summary = _build_summary(csv_tables, stats, exp_dirs)
     md_out = out_dir / "results_summary.md"
     tmp = md_out.with_suffix(".md.tmp")
     tmp.write_text(summary, encoding="utf-8")

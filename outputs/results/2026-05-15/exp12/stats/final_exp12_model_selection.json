@@ -1,0 +1,706 @@
+{
+  "emotion_features": [
+    "mean_arousal",
+    "mean_valence",
+    "max_arousal",
+    "arousal_variation",
+    "emotion_entropy",
+    "transition_rate",
+    "neutral_ratio"
+  ],
+  "quality_features": [
+    "n_frames",
+    "n_face_frames",
+    "detector_frame_score_std",
+    "detector_frame_score_min",
+    "detector_frame_score_max",
+    "blur_laplacian_mean",
+    "blur_laplacian_std",
+    "face_det_score_mean",
+    "face_det_score_std",
+    "face_area_mean",
+    "face_area_std",
+    "face_width_mean",
+    "face_height_mean"
+  ],
+  "xgb_grid": [
+    {
+      "learning_rate": 0.03,
+      "max_depth": 2,
+      "n_estimators": 50
+    },
+    {
+      "learning_rate": 0.03,
+      "max_depth": 2,
+      "n_estimators": 100
+    },
+    {
+      "learning_rate": 0.03,
+      "max_depth": 3,
+      "n_estimators": 50
+    },
+    {
+      "learning_rate": 0.03,
+      "max_depth": 3,
+      "n_estimators": 100
+    },
+    {
+      "learning_rate": 0.1,
+      "max_depth": 2,
+      "n_estimators": 50
+    },
+    {
+      "learning_rate": 0.1,
+      "max_depth": 2,
+      "n_estimators": 100
+    },
+    {
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "n_estimators": 50
+    },
+    {
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "n_estimators": 100
+    }
+  ],
+  "emotion_only_lr": {
+    "model": "emotion_only_lr",
+    "features": [
+      "mean_arousal",
+      "mean_valence",
+      "max_arousal",
+      "arousal_variation",
+      "emotion_entropy",
+      "transition_rate",
+      "neutral_ratio"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.7207207207207207,
+        "params": {}
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.6975546975546976,
+        "params": {}
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.7087832393231265,
+        "params": {}
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.7122256048710143,
+        "params": {}
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.6786858974358975,
+        "params": {}
+      }
+    ],
+    "chosen_params": []
+  },
+  "quality_only_lr": {
+    "model": "quality_only_lr",
+    "features": [
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.879021879021879,
+        "params": {}
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9091055341055341,
+        "params": {}
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8538275584206285,
+        "params": {}
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.867969876622336,
+        "params": {}
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9658653846153846,
+        "params": {}
+      }
+    ],
+    "chosen_params": []
+  },
+  "ucf_quality_lr": {
+    "model": "ucf_quality_lr",
+    "features": [
+      "detector_score",
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8846525096525097,
+        "params": {}
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9099099099099099,
+        "params": {}
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8596293311845286,
+        "params": {}
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8652459541740105,
+        "params": {}
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9668269230769231,
+        "params": {}
+      }
+    ],
+    "chosen_params": []
+  },
+  "ucf_emotion_lr": {
+    "model": "ucf_emotion_lr",
+    "features": [
+      "detector_score",
+      "mean_arousal",
+      "mean_valence",
+      "max_arousal",
+      "arousal_variation",
+      "emotion_entropy",
+      "transition_rate",
+      "neutral_ratio"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8217503217503217,
+        "params": {}
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.7929536679536681,
+        "params": {}
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.7943593875906526,
+        "params": {}
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8041980451850665,
+        "params": {}
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8086538461538462,
+        "params": {}
+      }
+    ],
+    "chosen_params": []
+  },
+  "ucf_emotion_quality_lr": {
+    "model": "ucf_emotion_quality_lr",
+    "features": [
+      "detector_score",
+      "mean_arousal",
+      "mean_valence",
+      "max_arousal",
+      "arousal_variation",
+      "emotion_entropy",
+      "transition_rate",
+      "neutral_ratio",
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.902831402831403,
+        "params": {}
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9086229086229086,
+        "params": {}
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8701047542304593,
+        "params": {}
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8992148694119533,
+        "params": {}
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9517628205128206,
+        "params": {}
+      }
+    ],
+    "chosen_params": []
+  },
+  "quality_only_xgb_tuned": {
+    "model": "quality_only_xgb_tuned",
+    "features": [
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8955920205920206,
+        "params": {
+          "learning_rate": 0.03,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9145752895752896,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8965350523771152,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.880467873738183,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.951602564102564,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      }
+    ],
+    "chosen_params": [
+      {
+        "learning_rate": 0.03,
+        "max_depth": 3,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      }
+    ]
+  },
+  "ucf_quality_xgb_tuned": {
+    "model": "ucf_quality_xgb_tuned",
+    "features": [
+      "detector_score",
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9005791505791505,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.912001287001287,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.895245769540693,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.8663675692997916,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9528044871794872,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      }
+    ],
+    "chosen_params": [
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      }
+    ]
+  },
+  "ucf_emotion_quality_xgb_tuned": {
+    "model": "ucf_emotion_quality_xgb_tuned",
+    "features": [
+      "detector_score",
+      "mean_arousal",
+      "mean_valence",
+      "max_arousal",
+      "arousal_variation",
+      "emotion_entropy",
+      "transition_rate",
+      "neutral_ratio",
+      "n_frames",
+      "n_face_frames",
+      "detector_frame_score_std",
+      "detector_frame_score_min",
+      "detector_frame_score_max",
+      "blur_laplacian_mean",
+      "blur_laplacian_std",
+      "face_det_score_mean",
+      "face_det_score_std",
+      "face_area_mean",
+      "face_area_std",
+      "face_width_mean",
+      "face_height_mean"
+    ],
+    "folds": [
+      {
+        "fold": 1,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9147361647361647,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 2,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9165057915057916,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 3,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9053988718775181,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 2,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 4,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.900977407466752,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      },
+      {
+        "fold": 5,
+        "n_train": 632,
+        "n_val": 158,
+        "fold_auc": 0.9629807692307693,
+        "params": {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        }
+      }
+    ],
+    "chosen_params": [
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 2,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      },
+      {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      }
+    ]
+  },
+  "best_vs_detector_delong": {
+    "auc_a": 0.9167051282051283,
+    "auc_b": 0.7569230769230769,
+    "z_stat": 0.12350896978630926,
+    "p_value": 0.9017040718129385
+  },
+  "best_vs_detector_permutation": {
+    "auc_a": 0.9167051282051282,
+    "auc_b": 0.7569230769230769,
+    "observed_diff": 0.15978205128205125,
+    "p_value": 0.0004997501249375312,
+    "n_permutations": 2000
+  },
+  "permutation_emotion_vs_detector": {
+    "auc_a": 0.7995705128205128,
+    "auc_b": 0.7569230769230769,
+    "observed_diff": 0.042647435897435915,
+    "p_value": 0.02048975512243878,
+    "n_permutations": 2000
+  },
+  "permutation_emotion_quality_vs_quality": {
+    "auc_a": 0.9167051282051282,
+    "auc_b": 0.9033878205128205,
+    "observed_diff": 0.013317307692307656,
+    "p_value": 0.0029985007496251873,
+    "n_permutations": 2000
+  },
+  "best_model_final_oof": "ucf_emotion_quality_xgb_tuned",
+  "xgb_modal_params_for_pilot": {
+    "quality_only_xgb_tuned": {
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "n_estimators": 100
+    },
+    "ucf_quality_xgb_tuned": {
+      "learning_rate": 0.1,
+      "max_depth": 2,
+      "n_estimators": 100
+    },
+    "ucf_emotion_quality_xgb_tuned": {
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "n_estimators": 100
+    }
+  }
+}

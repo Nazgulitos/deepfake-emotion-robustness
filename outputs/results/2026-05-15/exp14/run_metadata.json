@@ -1,8 +1,8 @@
 {
-  "exp_id": "exp06",
-  "subset": "final",
+  "exp_id": "exp14",
+  "subset": "final+pilot/xception",
   "seed": 42,
-  "git_commit": "04c8a6b0afd1c7a0ef351908f7877aa63b6fcbe2",
+  "git_commit": "762023f6c08393b65218fbcf7c1c63046fb797cc",
   "python_version": "3.11.14 (main, Nov 19 2025, 22:47:14) [Clang 21.1.4 ]",
   "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.39",
   "requirements_txt": "requirements.txt",
@@ -15,16 +15,15 @@
     "umap-learn": "0.5.12",
     "shap": "0.51.0",
     "matplotlib": "3.10.8",
-    "seaborn": "0.11.2"
+    "seaborn": "0.13.2"
   },
   "cli_args": {
-    "exp_id": "exp06",
-    "subset": "final",
-    "merged_table": "datasets/metadata/final_merged_xception_emotion.csv",
-    "min_fake": 5,
-    "date": null,
+    "exp_id": "exp14",
+    "detector": "xception",
+    "date": "2026-05-15",
+    "n_permutations": 2000,
     "log_level": "INFO"
   },
-  "start_time": "2026-05-15T13:23:59.554601+00:00",
-  "end_time": "2026-05-15T13:24:00.129666+00:00"
+  "start_time": "2026-05-15T16:57:20.847111+00:00",
+  "end_time": "2026-05-15T16:58:07.059064+00:00"
 }
