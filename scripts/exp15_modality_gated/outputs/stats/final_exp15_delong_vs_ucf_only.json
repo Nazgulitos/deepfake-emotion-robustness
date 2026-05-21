@@ -1,11 +1,11 @@
 {
   "model": "ModalityGated",
   "baseline": "UCF_only",
-  "auc_model": 0.913871794871795,
-  "auc_baseline": 0.7569230769230769,
-  "delta_auc": 0.15694871794871812,
-  "delong_z": 8.83309019371045,
-  "delong_p": 0.0,
+  "auc_model": 0.9020874258388395,
+  "auc_baseline": 0.76316050558565,
+  "delta_auc": 0.13892692025318953,
+  "delong_z": 6.6798305694588,
+  "delong_p": 2.3921975511598248e-11,
   "permutation_p": 0.0,
-  "n": 790
+  "n": 635
 }

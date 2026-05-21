@@ -1,0 +1,12 @@
+{
+  "model": "ThreeModalityGated_ensemble",
+  "baseline": "UCF_only",
+  "split": "test",
+  "auc_model": 0.9560293137908061,
+  "auc_baseline": 0.7295136575616256,
+  "delta_auc": 0.22651565622918057,
+  "delong_z": 5.22047115536882,
+  "delong_p": 1.784685035310929e-07,
+  "permutation_p": 0.0,
+  "n": 155
+}

@@ -1,0 +1,11 @@
+dominant_emotion,n,mean_gate_q,mean_gate_s,mean_gate_t,dominant_modality
+sexual_lust,18,0.1119,0.3448,0.5433,emotion_temporal
+thankfulness_gratitude,11,0.4322,0.1408,0.427,emotion_temporal
+interest,17,0.1689,0.4076,0.4234,emotion_temporal
+astonishment_surprise,263,0.2688,0.4165,0.3147,emotion_static
+elation,136,0.2525,0.4413,0.3061,emotion_static
+contentment,282,0.2715,0.4444,0.2841,emotion_static
+amusement,14,0.4548,0.2879,0.2573,quality
+anger,20,0.316,0.4468,0.2372,emotion_static
+disappointment,10,0.319,0.5061,0.1749,emotion_static
+embarrassment,17,0.2538,0.6217,0.1245,emotion_static
