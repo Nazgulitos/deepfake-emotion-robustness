@@ -1,0 +1,4 @@
+arousal_tercile,n,mean_arousal,mean_gate_q,mean_gate_s,mean_gate_t
+low,264,0.3217,0.2787,0.4343,0.287
+mid,263,0.3933,0.2483,0.4552,0.2965
+high,263,0.4498,0.2779,0.399,0.3231

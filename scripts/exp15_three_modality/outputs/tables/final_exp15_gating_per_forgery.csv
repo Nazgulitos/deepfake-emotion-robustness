@@ -1,0 +1,4 @@
+forgery_family,n,n_correct,accuracy,mean_gate_q,mean_gate_s,mean_gate_t,std_gate_q,std_gate_s,std_gate_t,dominant_modality
+FaceReenact,129,116,0.8992,0.4467,0.3129,0.2404,0.4391,0.385,0.3471,quality
+FaceSwap,133,100,0.7519,0.2598,0.4522,0.288,0.326,0.3455,0.2685,emotion_static
+TalkingFace,128,118,0.9219,0.3977,0.3809,0.2213,0.4474,0.4336,0.3697,quality

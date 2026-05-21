@@ -1,0 +1,25 @@
+{
+  "gate_q_vs_gate_s": {
+    "spearman_r": -0.9939,
+    "p_value": 2.2564913507360492e-148,
+    "interpretation": "potentially redundant"
+  },
+  "gate_q_vs_gate_t": {
+    "spearman_r": -0.0223,
+    "p_value": 0.7828382503140454,
+    "interpretation": "independent"
+  },
+  "gate_s_vs_gate_t": {
+    "spearman_r": 0.0005,
+    "p_value": 0.995078365588607,
+    "interpretation": "independent"
+  },
+  "interaction_qt_vs_confidence": {
+    "spearman_r": -0.6101,
+    "p_value": 3.5414296955471493e-17
+  },
+  "interaction_st_vs_confidence": {
+    "spearman_r": -0.5989,
+    "p_value": 1.8421205526135404e-16
+  }
+}

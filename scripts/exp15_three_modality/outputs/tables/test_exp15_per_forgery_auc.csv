@@ -1,0 +1,4 @@
+forgery_family,n_fake,n_real,AUC_ThreeModality,AUC_UCF_only,delta_AUC,mean_gate_q,mean_gate_s,mean_gate_t
+FaceReenact,32,79,0.96,0.7132,0.2468,0.7998,0.1239,0.0763
+FaceSwap,23,79,0.9263,0.7435,0.1827,0.5305,0.2942,0.1753
+TalkingFace,21,79,0.9825,0.739,0.2435,0.926,0.0356,0.0384

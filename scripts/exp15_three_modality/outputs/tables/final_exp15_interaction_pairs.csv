@@ -1,0 +1,4 @@
+pair,mean_interaction,std_interaction,min_interaction,max_interaction,spearman_with_correctness,p_value
+q × s (quality × emotion_static),0.0349,0.0468,0.0,0.2122,-0.3925,4.385460221538767e-07
+q × t (quality × emotion_temporal),0.0366,0.0487,0.0,0.1794,-0.2847,0.0003305949104521228
+s × t (emotion_static × emotion_temporal),0.0372,0.0456,0.0,0.1831,-0.2628,0.0009554749065211714

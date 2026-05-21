@@ -1,0 +1,5 @@
+split,model,AUC,AUC_ci_low,AUC_ci_high,ACC,F1,Precision,Recall,EER,n
+trainval_oof,UCF_only,0.7632,,,,,,,,635
+trainval_oof,ThreeModality_full,0.9307,0.911,0.9495,0.8551,0.8535,0.8535,0.8535,0.1496,635
+test_holdout,UCF_only,0.7295,,,,,,,,155
+test_holdout,ThreeModality_full,0.9553,0.9236,0.9793,0.8581,0.8571,0.8462,0.8684,0.1228,155
