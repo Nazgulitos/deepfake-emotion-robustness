@@ -1,0 +1,144 @@
+seed: 42
+device: cuda
+
+# Architecture
+embed_dim: 16
+gate_hidden: 32
+dropout: 0.2
+
+# Training
+batch_size: 32
+n_epochs: 100
+patience: 12
+lr: 1.0e-3
+weight_decay: 1.0e-4
+optimizer: adamw
+pos_weight_auto: true
+
+# Cross-validation (GroupKFold on predefined split column)
+n_folds: 5
+group_col: identity
+
+# Split strategy: use predefined split column (train/val → trainval for CV, test → holdout)
+use_predefined_split: true
+
+# ── Quality modality features ─────────────────────────────────────────────────
+quality_features:
+  - face_det_score_mean
+  - face_det_score_std
+  - face_size_mean
+  - face_size_std
+  - frame_count
+
+# ── Emotion static modality (aggregated semantic content) ──────────────────────
+emotion_static_features:
+  - mean_valence
+  - mean_arousal
+  - max_arousal
+  - neutral_ratio
+  - mean_score_affection
+  - mean_score_amusement
+  - mean_score_anger
+  - mean_score_astonishment_surprise
+  - mean_score_awe
+  - mean_score_bitterness
+  - mean_score_concentration
+  - mean_score_confusion
+  - mean_score_contemplation
+  - mean_score_contempt
+  - mean_score_contentment
+  - mean_score_disappointment
+  - mean_score_disgust
+  - mean_score_distress
+  - mean_score_doubt
+  - mean_score_elation
+  - mean_score_embarrassment
+  - mean_score_emotional_numbness
+  - mean_score_fatigue_exhaustion
+  - mean_score_fear
+  - mean_score_helplessness
+  - mean_score_hope_enthusiasm_optimism
+  - mean_score_impatience_and_irritability
+  - mean_score_infatuation
+  - mean_score_interest
+  - mean_score_intoxication_altered_states_of_consciousness
+  - mean_score_jealousy_&_envy
+  - mean_score_longing
+  - mean_score_malevolence_malice
+  - mean_score_pain
+  - mean_score_pleasure_ecstasy
+  - mean_score_pride
+  - mean_score_relief
+  - mean_score_sadness
+  - mean_score_sexual_lust
+  - mean_score_shame
+  - mean_score_sourness
+  - mean_score_teasing
+  - mean_score_thankfulness_gratitude
+  - mean_score_triumph
+
+# ── Emotion temporal modality (dynamics over time) ────────────────────────────
+emotion_temporal_features:
+  - arousal_variation
+  - transition_rate
+  - emotion_entropy
+  - std_valence
+  - std_arousal
+  # 40 temporal std features (computed from frame-level in 01_prepare_features.py)
+  - std_score_affection
+  - std_score_amusement
+  - std_score_anger
+  - std_score_astonishment_surprise
+  - std_score_awe
+  - std_score_bitterness
+  - std_score_concentration
+  - std_score_confusion
+  - std_score_contemplation
+  - std_score_contempt
+  - std_score_contentment
+  - std_score_disappointment
+  - std_score_disgust
+  - std_score_distress
+  - std_score_doubt
+  - std_score_elation
+  - std_score_embarrassment
+  - std_score_emotional_numbness
+  - std_score_fatigue_exhaustion
+  - std_score_fear
+  - std_score_helplessness
+  - std_score_hope_enthusiasm_optimism
+  - std_score_impatience_and_irritability
+  - std_score_infatuation
+  - std_score_interest
+  - std_score_intoxication_altered_states_of_consciousness
+  - std_score_jealousy_&_envy
+  - std_score_longing
+  - std_score_malevolence_malice
+  - std_score_pain
+  - std_score_pleasure_ecstasy
+  - std_score_pride
+  - std_score_relief
+  - std_score_sadness
+  - std_score_sexual_lust
+  - std_score_shame
+  - std_score_sourness
+  - std_score_teasing
+  - std_score_thankfulness_gratitude
+  - std_score_triumph
+
+# Reference baseline for comparison only (NOT used as model input)
+reference_baseline:
+  detector: ucf
+  scores_path: datasets/detector_processed/final_ucf_scores.csv
+
+# Paths relative to project root (deepfake-emotion-robustness/)
+paths:
+  face_manifest: datasets/metadata/final_face_manifest.csv
+  face_manifest_pilot: datasets/metadata/pilot_face_manifest.csv
+  frame_emotion: datasets/emotion_annotated/metadata/final_frame_emotion_predictions.csv
+  frame_emotion_pilot: datasets/emotion_annotated/metadata/pilot_frame_emotion_predictions.csv
+  video_emotion: datasets/emotion_annotated/metadata/final_video_emotion_features.csv
+  video_emotion_pilot: datasets/emotion_annotated/metadata/pilot_video_emotion_features.csv
+  ucf_scores: datasets/detector_processed/final_ucf_scores.csv
+  ucf_scores_pilot: datasets/detector_processed/pilot_ucf_scores.csv
+  output_root: scripts/exp15_three_modality/outputs
