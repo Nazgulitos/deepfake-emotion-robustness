@@ -2,18 +2,21 @@
 Stage 09 — t-SNE visualizations of learned representations.
 
 Extracts branch embeddings (h_q, h_s, h_t) from the 5-fold ensemble,
-then generates three publication-quality figures on the final test holdout.
+then generates four publication-quality figures.
 
 Reads:
   outputs/checkpoints/fold_{k}/best.pt  (k = 0..4)
   outputs/predictions/test_feature_matrix.parquet
+  outputs/predictions/pilot_feature_matrix.parquet
   datasets/detector_processed/final_ucf_scores.csv
+  datasets/detector_processed/pilot_ucf_scores.csv
 
 Writes:
   outputs/predictions/final_exp15_tsne_coords.csv
   outputs/figures/final_exp15_tsne_per_modality.png      (Figure A)
   outputs/figures/final_exp15_tsne_ucf_vs_gated.png      (Figure B)
   outputs/figures/final_exp15_tsne_gating_coloured.png   (Figure C)
+  outputs/figures/final_exp15_tsne_seen_vs_unseen.png    (Figure D)
 
 Run from project root:
   python scripts/exp15_three_modality/09_tsne_visualizations.py
@@ -58,6 +61,10 @@ C_FAKE   = "#d73027"   # red-orange
 C_QUAL   = "#2ca02c"   # green  (quality dominant)
 C_STAT   = "#ff7f0e"   # orange (emotion-static dominant)
 C_TEMP   = "#9467bd"   # purple (emotion-temporal dominant)
+C_SEEN_REAL   = "#4575b4"
+C_SEEN_FAKE   = "#d73027"
+C_UNSEEN_REAL = "#74c476"
+C_UNSEEN_FAKE = "#fc8d59"
 
 MARKER_FACESWAP    = "o"
 MARKER_FACEREENACT = "s"
@@ -223,6 +230,7 @@ def figure_a(hq, hs, ht, labels, families, auc_q, auc_s, auc_t, fig_dir):
     for ax, emb, title in zip(axes, embeds, titles):
         xy = run_tsne(emb)
         scatter_by_marker(ax, xy, labels, families, C_REAL, C_FAKE)
+        ax.set_title(title, fontsize=11)
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -241,6 +249,7 @@ def figure_a(hq, hs, ht, labels, families, auc_q, auc_s, auc_t, fig_dir):
     ]
     fig.legend(handles=legend_elements, loc="lower center", ncol=6, fontsize=9,
                bbox_to_anchor=(0.5, -0.05))
+    fig.suptitle("t-SNE of per-modality branch embeddings (test holdout)", fontsize=13)
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_per_modality.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -256,6 +265,7 @@ def figure_b(combined_emb, labels, families, ucf_scores, auc_ucf, auc_gated, fig
     ax = axes[0]
     scatter_by_marker(ax, xy_ucf, labels, families, C_REAL, C_FAKE)
     draw_fake_hull(ax, xy_ucf, labels, color=C_FAKE)
+    ax.set_title(f"(a) UCF Baseline  (AUC={auc_ucf:.3f})", fontsize=11)
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -264,6 +274,7 @@ def figure_b(combined_emb, labels, families, ucf_scores, auc_ucf, auc_gated, fig
     ax = axes[1]
     scatter_by_marker(ax, xy_gated, labels, families, C_REAL, C_FAKE)
     draw_fake_hull(ax, xy_gated, labels, color=C_FAKE)
+    ax.set_title(f"(b) Three-Modality Gated  (AUC={auc_gated:.3f})", fontsize=11)
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -279,6 +290,7 @@ def figure_b(combined_emb, labels, families, ucf_scores, auc_ucf, auc_gated, fig
     ]
     fig.legend(handles=legend_elements, loc="lower center", ncol=5, fontsize=9,
                bbox_to_anchor=(0.5, -0.05))
+    fig.suptitle("t-SNE: UCF baseline vs Three-Modality Gated (test holdout)", fontsize=13)
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_ucf_vs_gated.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -317,10 +329,68 @@ def figure_c(xy_gated, gates, labels, fig_dir):
                markersize=8, markeredgecolor="k", label="Fake (triangle)"),
     ]
     ax.legend(handles=legend_elements, fontsize=9, loc="best")
+    ax.set_title("t-SNE coloured by dominant modality (test holdout)", fontsize=12)
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_gating_coloured.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+# ── Figure D — seen vs unseen ──────────────────────────────────────────────────
+
+def figure_d(xy_gated_all, xy_ucf_all, test_labels, pilot_labels,
+             auc_ucf_test, auc_gated_test,
+             auc_ucf_pilot, auc_gated_pilot, fig_dir):
+    """xy_gated_all and xy_ucf_all are already projected (len(test)+len(pilot), 2)."""
+
+    def make_category(labels, is_test):
+        cats = []
+        for l in labels:
+            if is_test:
+                cats.append("seen_real" if l == 0 else "seen_fake")
+            else:
+                cats.append("unseen_real" if l == 0 else "unseen_fake")
+        return cats
+
+    cats_test  = make_category(test_labels,  is_test=True)
+    cats_pilot = make_category(pilot_labels, is_test=False)
+    all_cats   = np.array(cats_test + cats_pilot)
+
+    cat_styles = {
+        "seen_real":   (C_SEEN_REAL,   "o", "Seen Real (test)"),
+        "seen_fake":   (C_SEEN_FAKE,   "^", "Seen Fake (test)"),
+        "unseen_real": (C_UNSEEN_REAL, "o", "Unseen Real (pilot)"),
+        "unseen_fake": (C_UNSEEN_FAKE, "^", "Unseen Fake (pilot)"),
+    }
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    for ax, xy, title in [
+        (axes[0], xy_ucf_all,
+         f"(a) UCF Baseline\ntest AUC={auc_ucf_test:.3f}  pilot AUC={auc_ucf_pilot:.3f}"),
+        (axes[1], xy_gated_all,
+         f"(b) Three-Modality Gated\ntest AUC={auc_gated_test:.3f}  pilot AUC={auc_gated_pilot:.3f}"),
+    ]:
+        for cat, (color, marker, _) in cat_styles.items():
+            mask = np.array([c == cat for c in all_cats])
+            if mask.sum() == 0:
+                continue
+            ax.scatter(xy[mask, 0], xy[mask, 1], c=color, marker=marker,
+                       s=45, alpha=0.8, edgecolors="k", linewidths=0.3, zorder=3)
+        ax.set_title(title, fontsize=10)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    legend_elements = [
+        mpatches.Patch(color=c, label=lbl)
+        for cat, (c, m, lbl) in cat_styles.items()
+    ]
+    fig.legend(handles=legend_elements, loc="lower center", ncol=4, fontsize=9,
+               bbox_to_anchor=(0.5, -0.05))
+    fig.suptitle("t-SNE: Seen (test) vs Unseen (pilot) — UCF baseline vs Three-Modality Gated",
+                 fontsize=12)
+    fig.tight_layout()
+    fig.savefig(fig_dir / "final_exp15_tsne_seen_vs_unseen.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -395,6 +465,32 @@ def main():
     auc_ucf_test = compute_auc(labels_test, ucf_scores_test)
     logger.info(f"UCF test AUC: {auc_ucf_test:.3f}")
 
+    # ── Load pilot data ────────────────────────────────────────────────────────
+    pilot_path = pred_dir / "pilot_feature_matrix.parquet"
+    pilot_ok = pilot_path.exists()
+    if pilot_ok:
+        pilot = pd.read_parquet(pilot_path)
+        logger.info(f"Pilot: {len(pilot)} videos")
+        probs_pilot, gates_pilot, hq_pilot, hs_pilot, ht_pilot = load_ensemble_embeddings(
+            ckpt_dir, pilot, qual_cols, emo_static_cols, emo_temporal_cols,
+            all_feat_cols, cfg, device,
+        )
+        combined_pilot = np.hstack([hq_pilot, hs_pilot, ht_pilot])
+        labels_pilot   = pilot["label_int"].values
+
+        ucf_pilot_df = pd.read_csv(
+            require_file(ROOT / cfg["paths"]["ucf_scores_pilot"], "pilot UCF scores")
+        )
+        ucf_pilot_merged = pilot[["video_id", "label_int"]].merge(
+            ucf_pilot_df[["video_id", "detector_score"]], on="video_id", how="left"
+        )
+        ucf_scores_pilot = ucf_pilot_merged["detector_score"].fillna(0.0).values
+        auc_ucf_pilot    = compute_auc(labels_pilot, ucf_scores_pilot)
+        auc_gated_pilot  = compute_auc(labels_pilot, probs_pilot)
+        logger.info(f"Pilot — UCF AUC: {auc_ucf_pilot:.3f}  Gated AUC: {auc_gated_pilot:.3f}")
+    else:
+        logger.warning("Pilot feature matrix not found — skipping Figure D")
+
     # ── Save t-SNE coordinates ─────────────────────────────────────────────────
     logger.info("Computing t-SNE coordinates for all projections...")
     xy_combined_test = run_tsne(combined_test)
@@ -421,6 +517,26 @@ def main():
             coord_rows.append({**base, "modality": modality,
                                 "tsne_x": float(xy[i, 0]), "tsne_y": float(xy[i, 1])})
 
+    if pilot_ok:
+        xy_combined_pilot = run_tsne(np.vstack([combined_test, combined_pilot]))[len(test):]
+        xy_ucf_pilot = run_tsne(
+            np.vstack([ucf_scores_test.reshape(-1, 1), ucf_scores_pilot.reshape(-1, 1)])
+        )[len(test):]
+        for i in range(len(pilot)):
+            base = {
+                "video_id": pilot["video_id"].iloc[i],
+                "source": "pilot",
+                "label": int(labels_pilot[i]),
+                "forgery_family": pilot["forgery_family"].iloc[i] if "forgery_family" in pilot.columns else None,
+                "dominant_emotion": pilot["dominant_emotion"].iloc[i] if "dominant_emotion" in pilot.columns else None,
+                "gate_q": float(gates_pilot[i, 0]),
+                "gate_s": float(gates_pilot[i, 1]),
+                "gate_t": float(gates_pilot[i, 2]),
+            }
+            for modality, xy in [("combined", xy_combined_pilot), ("ucf", xy_ucf_pilot)]:
+                coord_rows.append({**base, "modality": modality,
+                                    "tsne_x": float(xy[i, 0]), "tsne_y": float(xy[i, 1])})
+
     coords_df = pd.DataFrame(coord_rows)
     coords_df.to_csv(pred_dir / "final_exp15_tsne_coords.csv", index=False)
     logger.info(f"t-SNE coordinates saved ({len(coords_df)} rows)")
@@ -440,11 +556,30 @@ def main():
     figure_c(xy_gated, gates_test, labels_test, fig_dir)
     logger.info("Figure C saved.")
 
+    if pilot_ok:
+        logger.info("Figure D: seen vs unseen t-SNE...")
+        combined_all = np.vstack([combined_test, combined_pilot])
+        ucf_all_arr  = np.concatenate([ucf_scores_test, ucf_scores_pilot])
+        xy_combined_all = run_tsne(combined_all)
+        xy_ucf_all      = run_tsne(ucf_all_arr.reshape(-1, 1))
+        figure_d(
+            xy_combined_all, xy_ucf_all,
+            labels_test, labels_pilot,
+            auc_ucf_test, auc_gated_test,
+            auc_ucf_pilot, auc_gated_pilot,
+            fig_dir,
+        )
+        logger.info("Figure D saved.")
+    else:
+        logger.warning("Figure D skipped — pilot data not available")
+
     print(f"\n{'='*60}")
     print("Stage 09 complete. Figures saved to:", fig_dir)
     print(f"  A: tsne_per_modality.png")
     print(f"  B: tsne_ucf_vs_gated.png")
     print(f"  C: tsne_gating_coloured.png")
+    if pilot_ok:
+        print(f"  D: tsne_seen_vs_unseen.png")
     print(f"  Coords: predictions/final_exp15_tsne_coords.csv")
     print(f"{'='*60}")
 

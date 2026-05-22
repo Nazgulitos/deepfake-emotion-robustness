@@ -11,6 +11,8 @@ Reads:
   outputs/predictions/test_exp15_predictions.csv
   datasets/metadata/final_face_manifest.csv
   datasets/detector_processed/final_ucf_scores.csv
+  (optional) outputs/predictions/pilot_feature_matrix.parquet
+             outputs/predictions/pilot_exp15_predictions.csv
 
 Writes:
   outputs/tables/final_exp15_per_generator_stats.csv
@@ -299,6 +301,7 @@ def main():
             linewidths=0.5, ax=ax_heat,
         )
         ax_heat.set_ylabel("")
+        ax_heat.set_title("Modality dominance per generator method", pad=12)
 
         # Family separators
         families_order = stats["forgery_family"].values
@@ -315,6 +318,7 @@ def main():
         ax_bar.set_yticks(range(len(stats)))
         ax_bar.set_yticklabels([])
         ax_bar.set_xlabel("n fake")
+        ax_bar.set_title("n", pad=12)
         ax_bar.invert_yaxis()
         for b in breaks:
             ax_bar.axhline(y=b, color="grey", linewidth=1.5)
@@ -356,6 +360,7 @@ def main():
         )
         ax.set_ylim(0, 1.12)
         ax.set_ylabel("AUC")
+        ax.set_title("Per-generator AUC: ThreeModality vs UCF baseline")
         ax.legend(fontsize=9)
 
         # Family separators
@@ -403,6 +408,7 @@ def main():
         )
         ax.set_xlim(0, 1.02)
         ax.set_xlabel("Mean gate weight")
+        ax.set_title("Modality dominance per generator (stacked gate weights)")
         ax.legend(loc="lower right", fontsize=9)
         ax.invert_yaxis()
 
