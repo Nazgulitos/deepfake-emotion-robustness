@@ -214,6 +214,8 @@ def main():
     # ── Per-forgery AUC ────────────────────────────────────────────────────────
     test_out = test[["video_id", "label_int", "forgery_family", "dominant_emotion"]].copy()
     test_out = test_out.rename(columns={"label_int": "label"})
+    test_out["fold"] = "ensemble"
+    test_out["split_type"] = "test_holdout"
     test_out["prediction"] = ensemble_probs
     test_out["gate_q"] = best_gates[:, 0]
     test_out["gate_s"] = best_gates[:, 1]

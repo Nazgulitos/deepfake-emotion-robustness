@@ -155,7 +155,6 @@ def save_modality_correlation(df: pd.DataFrame, qual_cols: list, emo_static_cols
         warnings.simplefilter("ignore")
         sns.heatmap(corr, annot=True, fmt=".3f", cmap="coolwarm", vmin=-1, vmax=1,
                     ax=ax, square=True)
-    ax.set_title("Modality mean-feature cross-correlation")
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_modality_correlation_heatmap.png", dpi=300)
     plt.close(fig)
@@ -257,27 +256,6 @@ def main():
     # ── Modality correlation ───────────────────────────────────────────────────
     save_modality_correlation(df, qual_cols, emo_static_cols, emo_temporal_cols,
                                table_dir, fig_dir, logger)
-
-    # ── Pilot set (if needed by stage 06) ─────────────────────────────────────
-    pilot_face_path = ROOT / cfg["paths"]["face_manifest_pilot"]
-    pilot_emo_path = ROOT / cfg["paths"]["video_emotion_pilot"]
-    pilot_frame_path = ROOT / cfg["paths"]["frame_emotion_pilot"]
-
-    if pilot_face_path.exists() and pilot_emo_path.exists() and pilot_frame_path.exists():
-        logger.info("Building pilot feature matrix...")
-        p_face = pd.read_csv(pilot_face_path)
-        p_video_emo = pd.read_csv(pilot_emo_path)
-        p_frame_emo = pd.read_csv(pilot_frame_path)
-        pilot_df = build_feature_matrix(
-            p_face, p_video_emo, p_frame_emo,
-            qual_cols, emo_static_cols, emo_temporal_base_cols,
-            logger,
-        )
-        validate_features(pilot_df, "pilot", all_feature_cols, logger)
-        pilot_df.to_parquet(pred_dir / "pilot_feature_matrix.parquet", index=False)
-        logger.info(f"Saved pilot feature matrix ({len(pilot_df)} videos)")
-    else:
-        logger.info("Pilot files not found — skipping pilot feature matrix")
 
     # ── Summary ────────────────────────────────────────────────────────────────
     print("\n=== Feature Matrix Summary ===")

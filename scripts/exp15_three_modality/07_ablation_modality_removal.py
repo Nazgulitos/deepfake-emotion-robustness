@@ -397,12 +397,10 @@ def main():
                 ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
                         f"{auc_val:.4f}", ha="center", va="bottom", fontsize=9)
             ax.set_ylim(max(0, min(aucs) - 0.05), min(1.0, max(aucs) + 0.05))
-            ax.set_title(title)
             ax.set_xlabel("Configuration")
             ax.set_ylabel("AUC")
             ax.tick_params(axis="x", rotation=15)
 
-        fig.suptitle("Ablation: impact of removing each modality", fontsize=12)
         fig.tight_layout()
         fig.savefig(fig_dir / "final_exp15_ablation_bars.png", dpi=300)
         plt.close(fig)

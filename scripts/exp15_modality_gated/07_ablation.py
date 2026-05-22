@@ -439,7 +439,6 @@ def main():
     ax.plot([0, 1], [0, 1], "k--", lw=0.8, alpha=0.4)
     ax.set_xlabel("False Positive Rate", fontsize=12)
     ax.set_ylabel("True Positive Rate", fontsize=12)
-    ax.set_title("Ablation — ROC Curves on Test Holdout", fontsize=12, fontweight="bold")
     ax.legend(fontsize=9, loc="lower right")
     ax.grid(alpha=0.3)
     plt.tight_layout()

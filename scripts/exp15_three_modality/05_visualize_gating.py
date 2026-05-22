@@ -64,7 +64,6 @@ def stacked_bar_plot(df_grouped: pd.DataFrame, label_col: str, gate_cols: list,
     ax.set_ylabel("Mean gate weight")
     ax.set_xlabel(ylabel)
     ax.set_ylim(0, 1.05)
-    ax.set_title(title)
     ax.legend(loc="upper right", fontsize=8)
     fig.tight_layout()
     fig.savefig(outpath, dpi=300)
@@ -141,7 +140,6 @@ def main():
             ax = axes[ax_idx]
             sub = pv[pv["dominant_modality_label"] == dom_label]
             if len(sub) == 0:
-                ax.set_title(f"Top-10 {dom_label}-dominant (no data)")
                 continue
 
             # x = dom gate, y = second largest gate
@@ -165,7 +163,6 @@ def main():
 
             ax.set_xlabel(dom_col.replace("gate_", "gate "))
             ax.set_ylabel(remaining[0].replace("gate_", "gate "))
-            ax.set_title(f"Top-10 {dom_label}-dominant")
 
             # Legend for color
             from matplotlib.lines import Line2D
@@ -177,7 +174,6 @@ def main():
             ]
             ax.legend(handles=legend_elements, fontsize=7)
 
-        fig.suptitle("Top-10 examples per dominant modality", fontsize=12)
         fig.tight_layout()
         fig.savefig(fig_dir / "final_exp15_modality_dominance_examples.png", dpi=300)
         plt.close(fig)
@@ -226,7 +222,6 @@ def main():
         ax.set_ylim([0, 1.02])
         ax.set_xlabel("False Positive Rate")
         ax.set_ylabel("True Positive Rate")
-        ax.set_title("ROC curves — ThreeModality vs UCF baseline")
         ax.legend(loc="lower right", fontsize=9)
         fig.tight_layout()
         fig.savefig(fig_dir / "final_exp15_roc_overlay.png", dpi=300)

@@ -25,7 +25,6 @@ python scripts/exp15_three_modality/02_train_three_modality.py
 python scripts/exp15_three_modality/03_evaluate_test.py
 python scripts/exp15_three_modality/04_extract_gating_weights.py
 python scripts/exp15_three_modality/05_visualize_gating.py
-python scripts/exp15_three_modality/06_pilot_holdout.py
 python scripts/exp15_three_modality/07_ablation_modality_removal.py
 python scripts/exp15_three_modality/08_interaction_analysis.py
 ```

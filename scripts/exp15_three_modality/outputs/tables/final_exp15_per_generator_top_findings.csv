@@ -1,0 +1,8 @@
+finding,generator,family,detail
+biggest_improvement_over_ucf,FLOAT,TalkingFace,delta_auc=+0.414
+hardest_for_ucf,FLOAT,TalkingFace,ucf_auc=0.494
+easiest_for_threemodality,Real3DPortrait,TalkingFace,auc=0.999
+hardest_for_threemodality,MobileFaceSwap,FaceSwap,auc=0.811
+most_temporal_dominant,CelebDFv2,FaceSwap,gate_t=0.506
+most_static_dominant,BlendFace,FaceSwap,gate_s=0.683
+most_quality_dominant,DaGAN,FaceReenact,gate_q=0.658

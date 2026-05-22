@@ -1,0 +1,6 @@
+source,rows,unique_video_ids,n_final_ids,n_nonfinal_ids,split_values,split_type_values
+final_manifest,47022,790,790,0,test;train;val,
+trainval_feature_matrix.parquet,635,635,635,0,train;val,
+test_feature_matrix.parquet,155,155,155,0,test,
+trainval_oof_predictions.csv,635,635,635,0,,trainval_oof
+test_exp15_predictions.csv,155,155,155,0,,test_holdout

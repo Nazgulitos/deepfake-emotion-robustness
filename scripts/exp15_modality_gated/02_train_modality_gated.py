@@ -433,7 +433,6 @@ def plot_training_curves(curves_csv: Path, out_path: Path) -> None:
     cmap = plt.cm.tab10
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle("Exp.15 Training Curves — ModalityGatedFusion", fontsize=13)
 
     # (a) loss
     ax = axes[0, 0]
@@ -441,7 +440,6 @@ def plot_training_curves(curves_csv: Path, out_path: Path) -> None:
         sub = df[df["fold"] == k]
         ax.plot(sub["epoch"], sub["train_loss"], color=cmap(i), alpha=0.6, linestyle="--")
         ax.plot(sub["epoch"], sub["val_loss"], color=cmap(i), alpha=0.9, label=f"fold {k}")
-    ax.set_title("(a) Train/Val Loss")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("BCE Loss")
     ax.legend(fontsize=7)
@@ -452,7 +450,6 @@ def plot_training_curves(curves_csv: Path, out_path: Path) -> None:
         sub = df[df["fold"] == k]
         ax.plot(sub["epoch"], sub["train_auc"], color=cmap(i), alpha=0.6, linestyle="--")
         ax.plot(sub["epoch"], sub["val_auc"], color=cmap(i), alpha=0.9, label=f"fold {k}")
-    ax.set_title("(b) Train/Val AUC")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("AUC")
     ax.legend(fontsize=7)
@@ -462,7 +459,6 @@ def plot_training_curves(curves_csv: Path, out_path: Path) -> None:
     for i, k in enumerate(folds):
         sub = df[df["fold"] == k]
         ax.plot(sub["epoch"], sub["val_auc_best"], color=cmap(i), alpha=0.9, label=f"fold {k}")
-    ax.set_title("(c) Best Val AUC Progression")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Best Val AUC")
     ax.legend(fontsize=7)
@@ -476,7 +472,6 @@ def plot_training_curves(curves_csv: Path, out_path: Path) -> None:
     ax.plot(gate_mean.index, gate_mean["gate_det_mean"], label="Detector", color="steelblue")
     ax.plot(gate_mean.index, gate_mean["gate_emo_mean"], label="Emotion", color="darkorange")
     ax.plot(gate_mean.index, gate_mean["gate_qual_mean"], label="Quality", color="forestgreen")
-    ax.set_title("(d) Mean Gate Weights over Epochs")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Gate Weight")
     ax.legend(fontsize=7)

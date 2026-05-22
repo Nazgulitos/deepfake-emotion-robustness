@@ -34,7 +34,7 @@ from src.utils.run_metadata import now_utc, write_run_metadata
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--exp_id", default="exp05")
-    p.add_argument("--subset", default="final", choices=["final", "pilot"])
+    p.add_argument("--subset", default="final", choices=["final"])
     p.add_argument("--merged_table", type=Path,
                    default=Path("datasets/metadata/final_merged_xception_emotion.csv"))
     p.add_argument("--min_group_size", type=int, default=5)
@@ -56,7 +56,6 @@ def _save_bar_chart(df: pd.DataFrame, out_path: Path, group_col: str) -> None:
     bars = ax.barh(sorted_df[group_col].astype(str), sorted_df["AUC"], color=colors)
     ax.axvline(0.5, color="gray", linestyle="--", linewidth=0.8, label="Random (AUC=0.5)")
     ax.set_xlabel("AUC (AUROC)")
-    ax.set_title("Deepfake Detection AUC by Dominant Emotion Class")
     ax.set_xlim(0, 1)
 
     for bar, n in zip(bars, sorted_df["n"]):

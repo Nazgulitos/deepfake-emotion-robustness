@@ -77,7 +77,6 @@ def stacked_bar_gating(df: pd.DataFrame, row_col: str, title: str, out_path: Pat
     ax.set_yticklabels(labels, fontsize=10)
     ax.set_xlim(0, 1)
     ax.set_xlabel("Mean Gate Weight", fontsize=11)
-    ax.set_title(title, fontsize=12, fontweight="bold")
     ax.legend(loc="lower right", fontsize=9)
     ax.axvline(x=1 / 3, color="gray", linestyle="--", alpha=0.4, linewidth=0.8)
 
@@ -130,7 +129,6 @@ def roc_overlay(oof: pd.DataFrame, ucf: pd.DataFrame, out_path: Path,
     ax.plot([0, 1], [0, 1], "k--", lw=0.8, alpha=0.5)
     ax.set_xlabel("False Positive Rate", fontsize=12)
     ax.set_ylabel("True Positive Rate", fontsize=12)
-    ax.set_title("ROC Curve Comparison — Exp.15 ModalityGatedFusion", fontsize=12, fontweight="bold")
     ax.legend(loc="lower right", fontsize=10)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.02)
@@ -152,7 +150,6 @@ def dominance_examples_scatter(per_video: pd.DataFrame, out_path: Path) -> None:
     for ax, (mod, color) in zip(axes, modalities):
         sub = per_video[per_video["dominant_modality"] == mod].copy()
         if len(sub) == 0:
-            ax.set_title(f"Top-10: {mod.capitalize()} dominant\n(no examples)")
             continue
         x = sub["gate_det"].values
         y = sub["gate_emo"].values
@@ -165,13 +162,11 @@ def dominance_examples_scatter(per_video: pd.DataFrame, out_path: Path) -> None:
                     fontsize=7, alpha=0.7)
         ax.set_xlabel("Gate weight: Detector", fontsize=10)
         ax.set_ylabel("Gate weight: Emotion", fontsize=10)
-        ax.set_title(f"Top-10: {mod.capitalize()} dominant", fontsize=11, fontweight="bold")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         ax.grid(alpha=0.3)
         ax.plot([0, 1], [0, 1], "k--", alpha=0.2)
 
-    plt.suptitle("Modality Dominance Examples (bubble size ∝ quality gate)", fontsize=12)
     plt.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=DPI)

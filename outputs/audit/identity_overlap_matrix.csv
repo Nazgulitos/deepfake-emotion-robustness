@@ -1,0 +1,7 @@
+partition_A,partition_B,n_overlap,A_size,B_size,status
+fold_0_train,fold_0_val,0,166,41,PASS
+fold_1_train,fold_1_val,0,166,41,PASS
+fold_2_train,fold_2_val,0,166,41,PASS
+fold_3_train,fold_3_val,0,165,42,PASS
+fold_4_train,fold_4_val,0,165,42,PASS
+trainval,test_holdout,0,207,52,PASS

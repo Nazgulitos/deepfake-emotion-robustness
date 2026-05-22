@@ -45,7 +45,7 @@ FEATURE_COLS = [
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--exp_id", default="exp10")
-    p.add_argument("--subset", default="final", choices=["final", "pilot"])
+    p.add_argument("--subset", default="final", choices=["final"])
     p.add_argument("--merged_table", type=Path,
                    default=Path("datasets/metadata/final_merged_xception_emotion.csv"))
     p.add_argument("--n_neighbors", type=int, default=15)

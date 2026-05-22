@@ -31,7 +31,7 @@ from src.utils.run_metadata import now_utc, write_run_metadata
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--exp_id", default="exp06")
-    p.add_argument("--subset", default="final", choices=["final", "pilot"])
+    p.add_argument("--subset", default="final", choices=["final"])
     p.add_argument("--merged_table", type=Path,
                    default=Path("datasets/metadata/final_merged_xception_emotion.csv"))
     p.add_argument("--min_fake", type=int, default=5,
@@ -126,9 +126,6 @@ def _save_heatmap(pivot: pd.DataFrame, n_pivot: pd.DataFrame,
                         fontsize=8, color=txt_color, fontweight="bold")
 
     plt.colorbar(im, ax=ax, label="AUC (AUROC)", shrink=0.8)
-    ax.set_title("Deepfake Detection AUC: Forgery Family × Dominant Emotion\n"
-                 f"(n = fake videos per cell; cells with n < {min_fake} shown in grey)",
-                 fontsize=10)
     plt.tight_layout()
     tmp = out_path.with_name(out_path.stem + ".tmp.png")
     plt.savefig(tmp, dpi=150, bbox_inches="tight")

@@ -134,11 +134,7 @@ reference_baseline:
 # Paths relative to project root (deepfake-emotion-robustness/)
 paths:
   face_manifest: datasets/metadata/final_face_manifest.csv
-  face_manifest_pilot: datasets/metadata/pilot_face_manifest.csv
   frame_emotion: datasets/emotion_annotated/metadata/final_frame_emotion_predictions.csv
-  frame_emotion_pilot: datasets/emotion_annotated/metadata/pilot_frame_emotion_predictions.csv
   video_emotion: datasets/emotion_annotated/metadata/final_video_emotion_features.csv
-  video_emotion_pilot: datasets/emotion_annotated/metadata/pilot_video_emotion_features.csv
   ucf_scores: datasets/detector_processed/final_ucf_scores.csv
-  ucf_scores_pilot: datasets/detector_processed/pilot_ucf_scores.csv
   output_root: scripts/exp15_three_modality/outputs

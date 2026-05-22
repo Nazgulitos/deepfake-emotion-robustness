@@ -438,6 +438,7 @@ def main():
                 "forgery_family": row.get("forgery_family", None),
                 "dominant_emotion": row.get("dominant_emotion", None),
                 "fold": k,
+                "split_type": "trainval_oof",
                 "prediction": float(result["probs"][i]),
                 "gate_q": float(result["gates"][i, 0]),
                 "gate_s": float(result["gates"][i, 1]),
@@ -476,9 +477,6 @@ def main():
                     if gate_col in cdf.columns:
                         axes[2].plot(cdf["epoch"], cdf[gate_col], alpha=0.7,
                                      color=color, label=f"{gate_col} f{fold_id}" if fold_id == 0 else "")
-            axes[0].set_title("Train loss")
-            axes[1].set_title("Val AUC")
-            axes[2].set_title("Gate weights evolution")
             for ax in axes:
                 ax.set_xlabel("Epoch")
                 ax.legend(fontsize=6)
