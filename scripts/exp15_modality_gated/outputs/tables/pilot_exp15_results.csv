@@ -1,3 +1,0 @@
-model,AUC,AUC_ci_low,AUC_ci_high,ACC,F1,Precision,Recall,EER,n
-UCF_only_pilot,0.7866,,,,,,,,196
-ModalityGated_Exp15_ensemble,0.9905,0.9758,0.9992,0.9694,0.9684,0.9787,0.9583,0.0306,196

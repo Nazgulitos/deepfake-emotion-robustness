@@ -1,0 +1,15 @@
+feature,importance,method,importance_share
+face_det_score_mean,0.88466835,mean_abs_shap,0.21444158
+blur_laplacian_std,0.6546036,mean_abs_shap,0.15867442
+detector_frame_score_std,0.57051235,mean_abs_shap,0.13829088
+n_face_frames,0.42512718,mean_abs_shap,0.10304985
+face_width_mean,0.4173009,mean_abs_shap,0.101152785
+blur_laplacian_mean,0.32398167,mean_abs_shap,0.07853241
+detector_frame_score_max,0.23999594,mean_abs_shap,0.058174465
+face_area_std,0.18586406,mean_abs_shap,0.045053024
+face_det_score_std,0.14477576,mean_abs_shap,0.03509331
+face_height_mean,0.11609578,mean_abs_shap,0.028141351
+detector_frame_score_min,0.08605274,mean_abs_shap,0.020858986
+face_area_mean,0.07647281,mean_abs_shap,0.018536834
+detector_score,0.0,mean_abs_shap,0.0
+n_frames,0.0,mean_abs_shap,0.0

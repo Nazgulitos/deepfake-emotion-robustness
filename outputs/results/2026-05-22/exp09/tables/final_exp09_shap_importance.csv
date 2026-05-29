@@ -1,0 +1,9 @@
+feature,mean_abs_shap
+max_arousal,0.6388791799545288
+neutral_ratio,0.3706553280353546
+arousal_variation,0.3662680387496948
+mean_valence,0.2693599462509155
+detector_score,0.21318234503269196
+transition_rate,0.2080838680267334
+mean_arousal,0.164706751704216
+emotion_entropy,0.15943151712417603

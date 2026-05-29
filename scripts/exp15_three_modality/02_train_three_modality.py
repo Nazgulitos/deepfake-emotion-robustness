@@ -477,6 +477,9 @@ def main():
                     if gate_col in cdf.columns:
                         axes[2].plot(cdf["epoch"], cdf[gate_col], alpha=0.7,
                                      color=color, label=f"{gate_col} f{fold_id}" if fold_id == 0 else "")
+            axes[0].set_title("Training Loss", fontsize=11)
+            axes[1].set_title("Validation AUC", fontsize=11)
+            axes[2].set_title("Gate Weights", fontsize=11)
             for ax in axes:
                 ax.set_xlabel("Epoch")
                 ax.legend(fontsize=6)

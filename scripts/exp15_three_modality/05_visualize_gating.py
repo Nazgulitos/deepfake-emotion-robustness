@@ -59,6 +59,7 @@ def stacked_bar_plot(df_grouped: pd.DataFrame, label_col: str, gate_cols: list,
                 ax.text(x[j], b + v / 2, f"{v:.2f}", ha="center", va="center",
                         fontsize=8, color="white", fontweight="bold")
         bottom += vals
+    ax.set_title(title, fontsize=11)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=9)
     ax.set_ylabel("Mean gate weight")
@@ -161,6 +162,7 @@ def main():
                 ax.annotate(fam[:8], (row[dom_col], row[remaining[0]]),
                             fontsize=6, ha="left", va="bottom", alpha=0.7)
 
+            ax.set_title(f"{dom_label.replace('_', ' ').title()} dominant", fontsize=11)
             ax.set_xlabel(dom_col.replace("gate_", "gate "))
             ax.set_ylabel(remaining[0].replace("gate_", "gate "))
 

@@ -1,0 +1,86 @@
+{
+  "method": "bootstrap_ci_per_class",
+  "note": "Emotion classes are disjoint video partitions \u2014 DeLong comparison is not applicable. 95% bootstrap CIs are reported per class instead.",
+  "per_class_ci": [
+    {
+      "emotion": "amusement",
+      "n": 14,
+      "auc": 0.675,
+      "ci_lower": 0.35555555555555557,
+      "ci_upper": 0.9166666666666666,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "anger",
+      "n": 20,
+      "auc": 0.625,
+      "ci_lower": 0.32318722943722944,
+      "ci_upper": 0.8791208791208791,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "disappointment",
+      "n": 10,
+      "auc": 0.6190476190476191,
+      "ci_lower": 0.2,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "embarrassment",
+      "n": 17,
+      "auc": 0.6190476190476191,
+      "ci_lower": 0.2857142857142857,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "contentment",
+      "n": 282,
+      "auc": 0.5782004830917874,
+      "ci_lower": 0.5099367765676062,
+      "ci_upper": 0.6480222168579287,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "interest",
+      "n": 17,
+      "auc": 0.5694444444444444,
+      "ci_lower": 0.26373106060606066,
+      "ci_upper": 0.8571428571428571,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "elation",
+      "n": 136,
+      "auc": 0.49296424452133797,
+      "ci_lower": 0.3921729842764731,
+      "ci_upper": 0.6003246753246753,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "astonishment_surprise",
+      "n": 263,
+      "auc": 0.4881944444444444,
+      "ci_lower": 0.42104996700768094,
+      "ci_upper": 0.5583042759786842,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "sexual_lust",
+      "n": 18,
+      "auc": 0.41558441558441556,
+      "ci_lower": 0.15527777777777782,
+      "ci_upper": 0.7143738977072309,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "thankfulness_gratitude",
+      "n": 11,
+      "auc": 0.2222222222222222,
+      "ci_lower": 0.0,
+      "ci_upper": 0.625,
+      "n_bootstrap": 1000
+    }
+  ]
+}

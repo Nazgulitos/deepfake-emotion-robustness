@@ -249,7 +249,6 @@ def figure_a(hq, hs, ht, labels, families, auc_q, auc_s, auc_t, fig_dir):
     ]
     fig.legend(handles=legend_elements, loc="lower center", ncol=6, fontsize=9,
                bbox_to_anchor=(0.5, -0.05))
-    fig.suptitle("t-SNE of per-modality branch embeddings (test holdout)", fontsize=13)
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_per_modality.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -290,7 +289,6 @@ def figure_b(combined_emb, labels, families, ucf_scores, auc_ucf, auc_gated, fig
     ]
     fig.legend(handles=legend_elements, loc="lower center", ncol=5, fontsize=9,
                bbox_to_anchor=(0.5, -0.05))
-    fig.suptitle("t-SNE: UCF baseline vs Three-Modality Gated (test holdout)", fontsize=13)
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_ucf_vs_gated.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -328,8 +326,8 @@ def figure_c(xy_gated, gates, labels, fig_dir):
         Line2D([0], [0], marker="^", color="w", markerfacecolor="grey",
                markersize=8, markeredgecolor="k", label="Fake (triangle)"),
     ]
+    ax.set_title("Dominant gating modality", fontsize=11)
     ax.legend(handles=legend_elements, fontsize=9, loc="best")
-    ax.set_title("t-SNE coloured by dominant modality (test holdout)", fontsize=12)
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
@@ -377,7 +375,6 @@ def figure_d(xy_gated_all, xy_ucf_all, test_labels, pilot_labels,
                 continue
             ax.scatter(xy[mask, 0], xy[mask, 1], c=color, marker=marker,
                        s=45, alpha=0.8, edgecolors="k", linewidths=0.3, zorder=3)
-        ax.set_title(title, fontsize=10)
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -387,8 +384,6 @@ def figure_d(xy_gated_all, xy_ucf_all, test_labels, pilot_labels,
     ]
     fig.legend(handles=legend_elements, loc="lower center", ncol=4, fontsize=9,
                bbox_to_anchor=(0.5, -0.05))
-    fig.suptitle("t-SNE: Seen (test) vs Unseen (pilot) — UCF baseline vs Three-Modality Gated",
-                 fontsize=12)
     fig.tight_layout()
     fig.savefig(fig_dir / "final_exp15_tsne_seen_vs_unseen.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -419,14 +414,18 @@ def main():
     emo_temporal_cols = emo_temporal_base + emo_temporal_std
     all_feat_cols = qual_cols + emo_static_cols + emo_temporal_cols
 
-    # ── Load test data ─────────────────────────────────────────────────────────
-    test = pd.read_parquet(
+    # ── Load full final data (trainval + test) for t-SNE ──────────────────────
+    trainval = pd.read_parquet(
+        require_file(pred_dir / "trainval_feature_matrix.parquet", "Run 01_prepare_features.py")
+    )
+    test_split = pd.read_parquet(
         require_file(pred_dir / "test_feature_matrix.parquet", "Run 01_prepare_features.py")
     )
-    logger.info(f"Test: {len(test)} videos")
+    test = pd.concat([trainval, test_split], ignore_index=True)
+    logger.info(f"Full final dataset: {len(test)} videos (trainval={len(trainval)}, test={len(test_split)})")
 
-    # ── Extract test embeddings (ensemble mean) ────────────────────────────────
-    logger.info("Extracting test embeddings from 5-fold ensemble...")
+    # ── Extract embeddings for all final videos (ensemble mean) ───────────────
+    logger.info("Extracting embeddings from 5-fold ensemble...")
     probs_test, gates_test, hq_test, hs_test, ht_test = load_ensemble_embeddings(
         ckpt_dir, test, qual_cols, emo_static_cols, emo_temporal_cols,
         all_feat_cols, cfg, device,
@@ -463,7 +462,7 @@ def main():
     )
     ucf_scores_test = ucf_test_merged["detector_score"].fillna(0.0).values
     auc_ucf_test = compute_auc(labels_test, ucf_scores_test)
-    logger.info(f"UCF test AUC: {auc_ucf_test:.3f}")
+    logger.info(f"UCF full AUC: {auc_ucf_test:.3f}")
 
     # ── Load pilot data ────────────────────────────────────────────────────────
     pilot_path = pred_dir / "pilot_feature_matrix.parquet"

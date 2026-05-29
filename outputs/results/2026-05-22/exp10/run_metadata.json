@@ -1,0 +1,31 @@
+{
+  "exp_id": "exp10",
+  "subset": "final",
+  "seed": 42,
+  "git_commit": "ac8134c5a7136e0b7733ad463625816ca1b68be8",
+  "python_version": "3.11.14 (main, Nov 19 2025, 22:47:14) [Clang 21.1.4 ]",
+  "platform": "Linux-6.8.0-94-generic-x86_64-with-glibc2.39",
+  "requirements_txt": "requirements.txt",
+  "package_versions": {
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "scikit-learn": "1.8.0",
+    "xgboost": "3.2.0",
+    "scipy": "1.17.1",
+    "umap-learn": "0.5.12",
+    "shap": "0.51.0",
+    "matplotlib": "3.10.8",
+    "seaborn": "0.13.2"
+  },
+  "cli_args": {
+    "exp_id": "exp10",
+    "subset": "final",
+    "merged_table": "datasets/metadata/final_merged_xception_emotion.csv",
+    "n_neighbors": 15,
+    "min_dist": 0.1,
+    "date": null,
+    "log_level": "INFO"
+  },
+  "start_time": "2026-05-22T08:20:23.723789+00:00",
+  "end_time": "2026-05-22T08:20:39.060876+00:00"
+}

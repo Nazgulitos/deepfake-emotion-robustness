@@ -1,17 +1,17 @@
 {
   "no_quality": {
-    "observed_delta": 0.021152564956695596,
-    "p_value": 0.1737,
+    "observed_delta": 0.01215856095936052,
+    "p_value": 0.4092,
     "n_iter": 10000
   },
   "no_emotion_static": {
-    "observed_delta": 0.032145236508994035,
-    "p_value": 0.0568,
+    "observed_delta": 0.035976015989340526,
+    "p_value": 0.0197,
     "n_iter": 10000
   },
   "no_emotion_temporal": {
-    "observed_delta": 0.0349766822118589,
-    "p_value": 0.0003,
+    "observed_delta": 0.027648234510326497,
+    "p_value": 0.0004,
     "n_iter": 10000
   }
 }
