@@ -58,7 +58,6 @@ outputs/logs/*
 !outputs/logs/.gitkeep
 
 exports/
-DeepfakeBench/
 
 # Large outputs (keep structure via .gitkeep)
 outputs/frames/
