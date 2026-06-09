@@ -1,0 +1,86 @@
+{
+  "method": "bootstrap_ci_per_class",
+  "note": "Emotion classes are disjoint video partitions \u2014 DeLong comparison is not applicable. 95% bootstrap CIs are reported per class instead.",
+  "per_class_ci": [
+    {
+      "emotion": "amusement",
+      "n": 14,
+      "auc": 0.95,
+      "ci_lower": 0.7692307692307693,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "thankfulness_gratitude",
+      "n": 11,
+      "auc": 0.9444444444444444,
+      "ci_lower": 0.75,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "embarrassment",
+      "n": 17,
+      "auc": 0.9285714285714286,
+      "ci_lower": 0.75,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "interest",
+      "n": 17,
+      "auc": 0.875,
+      "ci_lower": 0.6248511904761905,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "sexual_lust",
+      "n": 18,
+      "auc": 0.8701298701298701,
+      "ci_lower": 0.660146103896104,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "anger",
+      "n": 20,
+      "auc": 0.8020833333333333,
+      "ci_lower": 0.59365625,
+      "ci_upper": 0.978021978021978,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "astonishment_surprise",
+      "n": 263,
+      "auc": 0.7619212962962961,
+      "ci_lower": 0.7033607837196384,
+      "ci_upper": 0.8214212038982259,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "disappointment",
+      "n": 10,
+      "auc": 0.7619047619047619,
+      "ci_lower": 0.33333333333333337,
+      "ci_upper": 1.0,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "elation",
+      "n": 136,
+      "auc": 0.7416378316032296,
+      "ci_lower": 0.6458695161080353,
+      "ci_upper": 0.8349456808585504,
+      "n_bootstrap": 1000
+    },
+    {
+      "emotion": "contentment",
+      "n": 282,
+      "auc": 0.7179951690821257,
+      "ci_lower": 0.6586739008879587,
+      "ci_upper": 0.7768255245040958,
+      "n_bootstrap": 1000
+    }
+  ]
+}

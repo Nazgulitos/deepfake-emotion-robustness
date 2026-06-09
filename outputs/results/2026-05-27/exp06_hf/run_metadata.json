@@ -1,0 +1,30 @@
+{
+  "exp_id": "exp06_hf",
+  "subset": "final",
+  "seed": 42,
+  "git_commit": "ac8134c5a7136e0b7733ad463625816ca1b68be8",
+  "python_version": "3.13.2 (main, Feb  4 2025, 14:51:09) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+  "requirements_txt": "requirements.txt",
+  "package_versions": {
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "scikit-learn": "1.8.0",
+    "xgboost": "not_installed",
+    "scipy": "1.17.1",
+    "umap-learn": "not_installed",
+    "shap": "not_installed",
+    "matplotlib": "3.10.8",
+    "seaborn": "0.13.2"
+  },
+  "cli_args": {
+    "exp_id": "exp06_hf",
+    "subset": "final",
+    "merged_table": "datasets/metadata/final_merged_hf_emotion.csv",
+    "min_fake": 5,
+    "date": "2026-05-27",
+    "log_level": "INFO"
+  },
+  "start_time": "2026-05-27T06:39:19.332055+00:00",
+  "end_time": "2026-05-27T06:39:20.155184+00:00"
+}

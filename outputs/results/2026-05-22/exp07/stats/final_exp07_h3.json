@@ -1,0 +1,132 @@
+{
+  "evaluation_method": "groupkfold_5_fold_on_identity",
+  "auc_baseline_only": 0.5542435897435898,
+  "auc_fusion_oof": 0.6928333333333333,
+  "delta_auc": 0.13858974358974352,
+  "delong": {
+    "auc_a": 0.6928333333333334,
+    "auc_b": 0.5542435897435897,
+    "z_stat": 6.437967845114013,
+    "p_value": 1.2108364222003496e-10
+  },
+  "permutation": {
+    "auc_a": 0.6928333333333333,
+    "auc_b": 0.5542435897435898,
+    "observed_diff": 0.13858974358974352,
+    "p_value": 0.0009995002498750624,
+    "n_permutations": 2000
+  },
+  "n_total": 590,
+  "n_identities": 59,
+  "feature_cols_used": [
+    "detector_score",
+    "mean_arousal",
+    "mean_valence",
+    "max_arousal",
+    "arousal_variation",
+    "emotion_entropy",
+    "transition_rate",
+    "neutral_ratio"
+  ],
+  "fold_details": [
+    {
+      "fold": 1,
+      "val_identities": [
+        "id12",
+        "id20",
+        "id23",
+        "id29",
+        "id37",
+        "id4",
+        "id5",
+        "id50",
+        "id51",
+        "id52",
+        "id56",
+        "id6"
+      ],
+      "n_train": 471,
+      "n_val": 119,
+      "fold_fusion_auc": 0.7525659824046921
+    },
+    {
+      "fold": 2,
+      "val_identities": [
+        "id17",
+        "id24",
+        "id25",
+        "id33",
+        "id42",
+        "id47",
+        "id48",
+        "id49",
+        "id53",
+        "id60",
+        "id8",
+        "id9"
+      ],
+      "n_train": 472,
+      "n_val": 118,
+      "fold_fusion_auc": 0.6365384615384615
+    },
+    {
+      "fold": 3,
+      "val_identities": [
+        "id0",
+        "id16",
+        "id19",
+        "id2",
+        "id22",
+        "id26",
+        "id28",
+        "id34",
+        "id36",
+        "id43",
+        "id54",
+        "id7"
+      ],
+      "n_train": 472,
+      "n_val": 118,
+      "fold_fusion_auc": 0.6898034398034398
+    },
+    {
+      "fold": 4,
+      "val_identities": [
+        "id1",
+        "id11",
+        "id3",
+        "id32",
+        "id35",
+        "id39",
+        "id41",
+        "id45",
+        "id46",
+        "id55",
+        "id57"
+      ],
+      "n_train": 474,
+      "n_val": 116,
+      "fold_fusion_auc": 0.7929901423877328
+    },
+    {
+      "fold": 5,
+      "val_identities": [
+        "id10",
+        "id13",
+        "id21",
+        "id27",
+        "id30",
+        "id31",
+        "id38",
+        "id40",
+        "id44",
+        "id58",
+        "id59",
+        "id61"
+      ],
+      "n_train": 471,
+      "n_val": 119,
+      "fold_fusion_auc": 0.6636050516647533
+    }
+  ]
+}

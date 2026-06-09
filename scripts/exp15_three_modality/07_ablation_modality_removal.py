@@ -384,24 +384,29 @@ def main():
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(6, 5))
         configs = [r["config"] for r in results]
-        oof_aucs = [r["oof_auc"] for r in results]
+        display_labels = {
+            "full": "Full",
+            "no_quality": "No\nquality",
+            "no_emotion_static": "No emotion\nstatic",
+            "no_emotion_temporal": "No emotion\ntemporal",
+        }
+        x_labels = [display_labels.get(c, c.replace("_", "\n")) for c in configs]
         test_aucs = [r["test_auc"] for r in results]
         colors = ["#2ca02c" if c == "full" else "#d62728" for c in configs]
 
-        for ax, aucs, title in zip(axes, [oof_aucs, test_aucs], ["TrainVal OOF AUC", "Test AUC"]):
-            bars = ax.bar(configs, aucs, color=colors, width=0.5)
-            ax.axhline(y=aucs[0], color="green", linestyle="--", alpha=0.5, label="full")
-            for bar, auc_val in zip(bars, aucs):
-                ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
-                        f"{auc_val:.4f}", ha="center", va="bottom", fontsize=9)
-            ax.set_ylim(max(0, min(aucs) - 0.05), min(1.0, max(aucs) + 0.05))
-            ax.set_xlabel("Configuration")
-            ax.set_ylabel("AUC")
-            ax.tick_params(axis="x", rotation=15)
+        bars = ax.bar(x_labels, test_aucs, color=colors, width=0.5)
+        ax.axhline(y=test_aucs[0], color="green", linestyle="--", alpha=0.5, label="full")
+        for bar, auc_val in zip(bars, test_aucs):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
+                    f"{auc_val:.4f}", ha="center", va="bottom", fontsize=9)
+        ax.set_ylim(max(0, min(test_aucs) - 0.05), min(1.0, max(test_aucs) + 0.05))
+        ax.set_xlabel("Configuration")
+        ax.set_ylabel("AUC")
+        ax.tick_params(axis="x", rotation=0, pad=6)
 
-        fig.tight_layout()
+        fig.tight_layout(rect=(0, 0.08, 1, 1))
         fig.savefig(fig_dir / "final_exp15_ablation_bars.png", dpi=300)
         plt.close(fig)
         logger.info("Ablation bars figure saved")

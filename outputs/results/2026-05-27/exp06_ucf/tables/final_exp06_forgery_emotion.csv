@@ -1,0 +1,16 @@
+forgery_family,dominant_emotion,AUC
+FaceReenact,astonishment_surprise,0.7809923130677848
+FaceReenact,contentment,0.740839243498818
+FaceReenact,elation,0.661344537815126
+FaceSwap,embarrassment,0.9444444444444445
+FaceSwap,disappointment,0.8666666666666667
+FaceSwap,sexual_lust,0.8571428571428572
+FaceSwap,elation,0.803921568627451
+FaceSwap,astonishment_surprise,0.7993055555555556
+FaceSwap,anger,0.7708333333333333
+FaceSwap,contentment,0.6668943533697632
+TalkingFace,thankfulness_gratitude,0.9375
+TalkingFace,embarrassment,0.9047619047619048
+TalkingFace,contentment,0.7861111111111111
+TalkingFace,elation,0.761764705882353
+TalkingFace,astonishment_surprise,0.710594315245478
