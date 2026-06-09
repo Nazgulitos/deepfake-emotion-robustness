@@ -58,6 +58,7 @@ The `final_` prefix refers to the main experiment split, while `pilot_` refers t
 - Emotion predictions and aggregated emotion features are produced by the emotion annotation stages.
 - Detector score files are produced by the detector inference stages.
 - Merged analysis tables and AUC summaries are produced by the evaluation and analysis stages.
+- A step-by-step reproduction guide lives in [research_artifacts/emotion_annotated_dataset/README.md](../research_artifacts/emotion_annotated_dataset/README.md).
 
 ## Reproducibility Notes
 
