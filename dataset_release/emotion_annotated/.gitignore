@@ -1,0 +1,8 @@
+# Do not commit large raw media or packaged archives
+raw_media/
+*.tar.gz
+*.zip
+*.7z
+*.npz
+*.pt
+.DS_Store

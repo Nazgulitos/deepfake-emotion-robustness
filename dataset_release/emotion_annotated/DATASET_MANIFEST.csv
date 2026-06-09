@@ -1,0 +1,5 @@
+filename,description,sha256,notes
+final_frame_emotion_predictions.csv,Per-frame emotion model outputs (40 scores + valence/arousal),,
+final_video_emotion_features.csv,Per-video aggregated emotion features (descriptors used in experiments),,
+final_face_manifest.csv,Face manifest used as input to the annotation pipeline,,
+README.md,This file describing the dataset release and packaging,,

@@ -65,3 +65,5 @@ The `final_` prefix refers to the main experiment split, while `pilot_` refers t
 - These files are generated artifacts and can be recreated from the configured input paths.
 - Keep the corresponding raw data and configuration files in sync with the artifact versions in this directory.
 - When rerunning the pipeline, overwrite the existing files only after you have confirmed the new outputs are intended.
+
+- Release artifact location: see [dataset_release/emotion_annotated/README.md](../dataset_release/emotion_annotated/README.md) for a packaged dataset handoff and hosting guidance.
