@@ -83,7 +83,7 @@ Before any new work, perform these housekeeping tasks:
 
 3. **Add `.gitignore` entries** for `.venv/`, `__pycache__/`, `*.pyc`, large `outputs/` artifacts.
 
-4. **Verify `requirements.txt` matches `uv.lock`** — pin everything currently in use.
+4. **Verify `uv.lock` matches the installed environment** — pin everything currently in use.
 
 5. **Create new directories** that don't yet exist:
    ```
@@ -367,7 +367,7 @@ If any column is missing or named differently, add a one-time migration script i
 4. Write `outputs/results/YYYY-MM-DD/{exp_id}/run_metadata.json` with:
    - git commit hash (`subprocess.check_output(["git","rev-parse","HEAD"])`)
    - Python version
-   - Package versions (or path to `requirements.txt`)
+  - Package versions (or path to `uv.lock`)
    - Random seed used
    - CLI arguments
    - Start and end timestamps

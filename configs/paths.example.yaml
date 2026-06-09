@@ -1,6 +1,0 @@
-paths:
-  project_root: .
-  metadata_dir: metadata
-  outputs_dir: outputs
-  logs_dir: outputs/logs
-  dataset_root: /path/to/datasets

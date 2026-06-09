@@ -68,7 +68,7 @@ def write_run_metadata(
         "git_commit": _git_commit_hash(),
         "python_version": sys.version,
         "platform": platform.platform(),
-        "requirements_txt": "requirements.txt",
+        "requirements_txt": "uv.lock",
         "package_versions": _package_versions(KEY_PACKAGES),
         "cli_args": cli_args,
         "start_time": start_time.isoformat(),

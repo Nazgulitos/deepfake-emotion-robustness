@@ -70,3 +70,5 @@ outputs/faces/
 
 # Notebook outputs (clear before commit)
 *.ipynb_checkpoints/
+
+configs/

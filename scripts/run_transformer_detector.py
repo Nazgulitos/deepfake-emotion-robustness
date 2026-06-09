@@ -68,7 +68,7 @@ def _check_prerequisites(args: argparse.Namespace, logger: logging.Logger) -> bo
         logger.error(
             "DeepfakeBench Python not found: %s\n"
             "  → Run inside DeepfakeBench dir:  python -m venv .venv && "
-            ".venv/bin/pip install -r requirements.txt",
+            "uv sync",
             args.dfb_python,
         )
         ok = False

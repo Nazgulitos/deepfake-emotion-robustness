@@ -30,6 +30,7 @@ OUT_DIR          = PROJECT_ROOT / "outputs/deepfakebench_scores"
 SUBSET_NAME      = "final"
 
 def main():
+    """Run DeepfakeBench Xception inference for the thesis-wide evaluation set."""
     print("Loading config...")
     with open(DETECTOR_CONFIG) as f:
         cfg = yaml.safe_load(f)

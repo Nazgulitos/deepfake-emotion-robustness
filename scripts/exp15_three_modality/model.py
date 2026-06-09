@@ -1,10 +1,10 @@
 """
-ThreeModalityGated — three-branch gated fusion network.
+Three-modality gated fusion models used by the exp15 ablation pipeline.
 
-Modalities:
-  M_q: quality    (static technical signals)
-  M_s: emotion static  (aggregated semantic content)
-  M_t: emotion temporal (dynamics over time)
+The models combine three feature groups:
+    M_q: quality features from face/video statistics
+    M_s: static emotion descriptors aggregated at the video level
+    M_t: temporal emotion descriptors derived from frame-level dynamics
 """
 
 import torch
@@ -13,6 +13,12 @@ import torch.nn.functional as F
 
 
 class ThreeModalityGated(nn.Module):
+    """Three-branch gated fusion network for the main exp15 experiment.
+
+    The model embeds each modality independently, scores each branch with a
+    branch head, and then learns gate weights over the three logits.
+    """
+
     def __init__(
         self,
         quality_dim: int,
@@ -58,6 +64,7 @@ class ThreeModalityGated(nn.Module):
         )
 
     def forward(self, x_q, x_s, x_t):
+        """Return the fused logit, gate weights, and branch logits."""
         h_q = self.q_embed(x_q)
         h_s = self.s_embed(x_s)
         h_t = self.t_embed(x_t)
@@ -122,6 +129,7 @@ class TwoModalityGated(nn.Module):
         )
 
     def forward(self, x_a, x_b):
+        """Return the fused logit, gate weights, and branch logits."""
         h_a = self.a_embed(x_a)
         h_b = self.b_embed(x_b)
 
@@ -144,7 +152,7 @@ class TwoModalityGated(nn.Module):
 def build_ablation_model(config_name: str, quality_dim: int, emo_static_dim: int,
                           emo_temporal_dim: int, embed_dim: int = 16,
                           gate_hidden: int = 32, dropout: float = 0.2):
-    """Factory for ablation variants."""
+    """Return the model variant matching the requested ablation setting."""
     if config_name == "full":
         return ThreeModalityGated(
             quality_dim, emo_static_dim, emo_temporal_dim,

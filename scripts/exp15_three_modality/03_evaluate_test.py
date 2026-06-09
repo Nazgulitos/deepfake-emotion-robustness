@@ -54,6 +54,7 @@ ROOT = get_project_root()
 
 @torch.no_grad()
 def run_inference(model, df, qual_cols, emo_static_cols, emo_temporal_cols, batch_size, device):
+    """Run batched inference and collect probabilities, gates, and branch logits."""
     ds = ThreeModalityDataset(df, qual_cols, emo_static_cols, emo_temporal_cols)
     loader = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
     model.eval()
@@ -72,6 +73,7 @@ def run_inference(model, df, qual_cols, emo_static_cols, emo_temporal_cols, batc
 
 
 def compute_metrics(y_true, y_score, n_bootstrap=2000):
+    """Compute the standard exp15 classification metrics for a score vector."""
     auc, auc_lo, auc_hi = bootstrap_auc_ci(y_true, y_score, n_iter=n_bootstrap, seed=42)
     eer = compute_eer(y_true, y_score)
     y_pred = (y_score >= 0.5).astype(int)
@@ -88,6 +90,7 @@ def compute_metrics(y_true, y_score, n_bootstrap=2000):
 
 
 def main():
+    """Evaluate the saved three-modality ensemble on the test holdout."""
     set_seeds(42)
     cfg = load_config(str(CONFIG_PATH))
     out_dir = ROOT / cfg["paths"]["output_root"]

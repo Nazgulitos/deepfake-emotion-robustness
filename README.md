@@ -1,145 +1,136 @@
-# Deepfake Emotion Robustness (Bachelor Thesis)
+# Deepfake Emotion Robustness
 
-## Project Title
-Development of an Emotion-Annotated Deepfake Video Dataset and Analysis of Deepfake Detection Robustness to Facial Emotional Dynamics
+Development of an Emotion-Annotated Deepfake Video Dataset and Analysis of Deepfake Detection Robustness to Facial Emotional Dynamics.
 
-## Overview
-This repository contains a modular and reproducible Python pipeline to:
-1. Build a curated subset from public deepfake benchmarks.
-2. Extract frames and face crops.
-3. Annotate facial emotions with a pretrained FER model.
-4. Aggregate frame-level emotions into video-level descriptors.
-5. Run a baseline deepfake detector.
-6. Merge metadata into one analysis table.
-7. Evaluate detection robustness across emotional conditions.
-8. Optionally run a simple late-fusion baseline.
+## Project Overview
+This repository contains the code and research artifacts for a bachelor thesis on how facial emotion affects deepfake detection. The pipeline is config-driven and reproducible: it prepares a benchmark subset, extracts frames and faces, runs emotion annotation, aggregates emotion features, evaluates baseline detectors, and compares results across emotional conditions.
 
-The scope is intentionally practical for a bachelor thesis. No large model training is required.
+## Motivation
+Deepfake detectors are usually evaluated on clean benchmark splits, but real videos often contain strong facial expressions, rapid emotion changes, and inconsistent face quality. This project studies whether those conditions change detector reliability and whether explicit emotion features help explain or improve robustness.
 
-## Research Questions
-- RQ1: Does the type and intensity of facial emotion affect deepfake detection quality?
-- RQ2: Which emotional conditions are most difficult for deepfake detectors?
-- RQ3: Can explicit emotional features improve deepfake detection robustness?
+## Features
+- Curated subset construction from benchmark metadata.
+- Frame extraction and face cropping.
+- Emotion annotation with a pretrained FER model.
+- Video-level aggregation of emotion and temporal descriptors.
+- Baseline deepfake inference and late-fusion experiments.
+- Robustness analysis by emotion, forgery family, and split.
+- Statistical testing, SHAP/UMAP analysis, and thesis artifact generation.
 
-## Hypotheses
-- H1: Detection quality decreases for videos with strong and rapidly changing emotions.
-- H2: Detection errors correlate with facial emotional dynamics.
-- H3: Adding emotional descriptors to detector outputs improves robustness.
+## Architecture Overview
+The repository is organized as a staged data pipeline:
+
+1. `scripts/build_subset.py` prepares a curated manifest and split metadata.
+2. `scripts/extract_frames.py` and `scripts/extract_faces.py` create visual inputs.
+3. `scripts/run_emotion_annotation.py` annotates each face crop with emotion scores.
+4. `scripts/aggregate_emotion_features.py` converts frame-level predictions into video-level features.
+5. `scripts/run_deepfake_detector.py` runs the detector baseline and writes detector scores.
+6. `scripts/merge_metadata.py` assembles the final analysis table.
+7. `scripts/evaluate_by_emotion.py` and `scripts/run_late_fusion.py` produce the final evaluation outputs.
+
+The reusable implementation lives under `src/`, while experiment-specific logic and ablation utilities live in `scripts/exp15_*`.
 
 ## Repository Structure
 ```text
 .
-|-- README.md
-|-- .gitignore
-|-- requirements.txt
-|-- Makefile
-|-- configs/
-|   |-- base.yaml
-|   |-- paths.example.yaml
-|   `-- pipeline.example.yaml
-|-- docs/
-|   |-- experiment_plan.md
-|   `-- thesis_notes.md
-|-- scripts/
-|   |-- build_subset.py
-|   |-- extract_frames.py
-|   |-- extract_faces.py
-|   |-- run_emotion_annotation.py
-|   |-- aggregate_emotion_features.py
-|   |-- run_deepfake_detector.py
-|   |-- merge_metadata.py
-|   |-- evaluate_by_emotion.py
-|   `-- run_late_fusion.py
-|-- src/
-|   |-- __init__.py
-|   |-- data/
-|   |   |-- __init__.py
-|   |   `-- subset_builder.py
-|   |-- preprocessing/
-|   |   |-- __init__.py
-|   |   |-- frame_extractor.py
-|   |   `-- face_extractor.py
-|   |-- emotion/
-|   |   |-- __init__.py
-|   |   |-- annotator.py
-|   |   `-- aggregation.py
-|   |-- detection/
-|   |   |-- __init__.py
-|   |   |-- baseline_detector.py
-|   |   `-- fusion.py
-|   |-- features/
-|   |   |-- __init__.py
-|   |   `-- merge.py
-|   |-- evaluation/
-|   |   |-- __init__.py
-|   |   `-- metrics.py
-|   `-- utils/
-|       |-- __init__.py
-|       |-- config.py
-|       |-- io.py
-|       |-- logging_utils.py
-|       `-- naming.py
-|-- notebooks/
-|   `-- .gitkeep
-|-- metadata/
-|   `-- .gitkeep
-`-- outputs/
-    |-- figures/
-    |   `-- .gitkeep
-    |-- logs/
-    |   `-- .gitkeep
-    `-- tables/
-        `-- .gitkeep
+|-- configs/                 # Base config plus local override examples
+|-- datasets/                # Prepared dataset artifacts and metadata
+|-- docs/                    # Data schema, project spec, and research notes
+|-- outputs/                 # Generated tables, figures, logs, and reports
+|-- scripts/                 # Pipeline entrypoints and analysis scripts
+|-- src/                     # Reusable preprocessing, emotion, detection, and eval code
+|-- tests/                   # Unit tests for aggregation, metrics, splits, and statistics
+|-- main.pdf                 # Compiled thesis report included with the release
+|-- Makefile                 # Convenience targets for the full pipeline
+|-- pyproject.toml           # Project metadata and dependency declarations
+|-- uv.lock                  # Locked dependency graph for uv
+|-- verify_ablation.py       # Ablation verification helper
+`-- README.md
 ```
 
-## Setup
-1. Create and activate a Python environment (recommended Python 3.10+).
-2. Install dependencies:
+## Installation
+1. Create a Python 3.10+ environment.
+2. Install the project dependencies with `uv`:
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
-3. Copy and edit configuration examples as needed:
+3. If you plan to run notebooks or interactive analysis, install the notebook-related extras as well:
+
+```bash
+uv sync --group dev
+```
+
+## Quick Start
+1. Copy the example configuration files and point them at your local dataset locations:
 
 ```bash
 cp configs/paths.example.yaml configs/paths.local.yaml
 cp configs/pipeline.example.yaml configs/pipeline.local.yaml
 ```
 
-## Quick Run (Stage by Stage)
-All scripts use `configs/base.yaml` by default.
-
-```bash
-PYTHONPATH=. python scripts/build_subset.py --config configs/base.yaml
-PYTHONPATH=. python scripts/extract_frames.py --config configs/base.yaml
-PYTHONPATH=. python scripts/extract_faces.py --config configs/base.yaml
-PYTHONPATH=. python scripts/run_emotion_annotation.py --config configs/base.yaml
-PYTHONPATH=. python scripts/aggregate_emotion_features.py --config configs/base.yaml
-PYTHONPATH=. python scripts/run_deepfake_detector.py --config configs/base.yaml
-PYTHONPATH=. python scripts/merge_metadata.py --config configs/base.yaml
-PYTHONPATH=. python scripts/evaluate_by_emotion.py --config configs/base.yaml
-PYTHONPATH=. python scripts/run_late_fusion.py --config configs/base.yaml
-```
-
-Or use Make targets:
+2. Run the full pipeline with the default configuration:
 
 ```bash
 make all
 ```
 
-## Expected Core Outputs
-- metadata/subset_manifest.csv
-- metadata/frame_manifest.csv
-- metadata/face_manifest.csv
-- metadata/emotion_frame_predictions.csv
-- metadata/video_emotion_features.csv
-- metadata/detector_scores.csv
-- metadata/final_merged_table.csv
-- outputs/figures/
-- outputs/tables/
+3. Inspect the generated tables and figures under `outputs/`.
 
-## Notes
-- This scaffold intentionally includes TODO blocks where benchmark-specific implementation details are needed.
-- Paths are config-driven and do not assume private dataset access.
-- Intermediate tables can be saved as CSV or Parquet based on file extension.
+## Usage Examples
+Run individual stages directly when you only need part of the workflow:
+
+```bash
+uv run python scripts/build_subset.py --config configs/base.yaml
+uv run python scripts/extract_frames.py --config configs/base.yaml
+uv run python scripts/extract_faces.py --config configs/base.yaml
+uv run python scripts/run_emotion_annotation.py --config configs/base.yaml
+uv run python scripts/aggregate_emotion_features.py --config configs/base.yaml
+uv run python scripts/run_deepfake_detector.py --config configs/base.yaml
+uv run python scripts/merge_metadata.py --config configs/base.yaml
+uv run python scripts/evaluate_by_emotion.py --config configs/base.yaml
+uv run python scripts/run_late_fusion.py --config configs/base.yaml
+```
+
+For the experiment-specific three-modality ablation pipeline:
+
+```bash
+uv run python scripts/exp15_three_modality/01_prepare_features.py
+uv run python scripts/exp15_three_modality/03_evaluate_test.py
+```
+
+## Configuration
+The main configuration lives in `configs/base.yaml`. Local path overrides can be stored in `configs/paths.local.yaml` and `configs/pipeline.local.yaml`; the repository keeps the `.example.yaml` versions as templates. The pipeline is intentionally file-based, so the main knobs are input paths, output locations, split definitions, and experiment parameters rather than environment variables.
+
+## Reproducibility
+- Random seeds are fixed in the scripted stages that support them.
+- Config files make the data locations and split definitions explicit.
+- Intermediate artifacts are written to disk so each stage can be rerun independently.
+- The repo includes the compiled thesis report as `main.pdf` for reference.
+- Use `make test` to check the lightweight regression suite when making changes.
+
+## Results
+The repository produces analysis tables, figures, and score files under `outputs/`. Key outputs include subset manifests, frame and face manifests, emotion predictions, aggregated emotion features, detector scores, final merged tables, robustness summaries, and thesis-ready figures and tables.
+
+## Future Work
+- Add automated CI for tests and linting.
+- Publish a fully parameterized dataset download guide for external users.
+- Expand benchmark coverage beyond the current thesis experiments.
+- Add notebook execution checks for the most important exploratory analyses.
+
+## Citation
+If you use this repository in academic work, please cite the thesis and the repository. Replace the placeholder metadata below with the final thesis citation details before publication.
+
+```bibtex
+@mastersthesis{deepfakeEmotionRobustness2026,
+    title  = {Development of an Emotion-Annotated Deepfake Video Dataset and Analysis of Deepfake Detection Robustness to Facial Emotional Dynamics},
+    author = {Your Name},
+    school = {Innopolis University},
+    year   = {2026},
+    note   = {Repository and thesis report for the Deepfake Emotion Robustness project}
+}
+```
+
+## License
+A placeholder `LICENSE` file is included so the repository is ready for release packaging. Replace it with the final open-source license before the public GitHub release if you want to grant explicit reuse rights.

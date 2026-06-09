@@ -54,6 +54,11 @@ SCORE_COLS = [
 
 
 def build_quality_features(face_manifest: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate per-video quality statistics from the face manifest.
+
+    Expected columns include `video_id`, `det_score`, `face_width`,
+    `face_height`, and `frame_id`. The returned frame is indexed by `video_id`.
+    """
     grp = face_manifest.groupby("video_id")
     q = pd.DataFrame()
     q["face_det_score_mean"] = grp["det_score"].mean()
@@ -86,6 +91,11 @@ def build_feature_matrix(
     emo_temporal_base_cols: list,
     logger,
 ) -> pd.DataFrame:
+    """Merge quality, static emotion, and temporal emotion features.
+
+    The output preserves the experiment metadata needed by the exp15 training
+    and evaluation scripts and adds a binary `label_int` column for scoring.
+    """
     logger.info("Building quality features from face manifest...")
     qual = build_quality_features(face_manifest)
 
@@ -118,6 +128,7 @@ def build_feature_matrix(
 
 
 def validate_features(df: pd.DataFrame, name: str, all_feature_cols: list, logger) -> None:
+    """Validate that a split is complete and free of missing feature values."""
     nan_counts = df[all_feature_cols].isnull().sum()
     if nan_counts.any():
         bad = nan_counts[nan_counts > 0].to_dict()
@@ -171,6 +182,7 @@ def save_modality_correlation(df: pd.DataFrame, qual_cols: list, emo_static_cols
 
 
 def main():
+    """Build train/validation and test feature matrices for the exp15 study."""
     set_seeds(42)
     cfg = load_config(str(CONFIG_PATH))
     out_dir = ROOT / cfg["paths"]["output_root"]
