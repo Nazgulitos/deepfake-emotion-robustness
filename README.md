@@ -123,9 +123,9 @@ The repository produces analysis tables, figures, and score files under `outputs
 If you use this repository in academic work, please cite the thesis and the repository. Replace the placeholder metadata below with the final thesis citation details before publication.
 
 ```bibtex
-@mastersthesis{deepfakeEmotionRobustness2026,
+@unknown{deepfakeEmotionRobustness2026,
     title  = {Development of an Emotion-Annotated Deepfake Video Dataset and Analysis of Deepfake Detection Robustness to Facial Emotional Dynamics},
-    author = {Your Name},
+    author = {Nazgul Salikhova, Ilya Makarov},
     school = {Innopolis University},
     year   = {2026},
     note   = {Repository and thesis report for the Deepfake Emotion Robustness project}
